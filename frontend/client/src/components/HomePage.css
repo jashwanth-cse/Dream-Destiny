@@ -1,0 +1,203 @@
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  color: #007bff;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.navbar-brand-icon {
+  margin-right: 10px;
+  font-size: 28px;
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 35px;
+  align-items: center;
+}
+
+.navbar-link {
+  color: #666;
+  cursor: pointer;
+  font-size: 15px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.navbar-link:hover {
+  color: #007bff;
+}
+
+.navbar-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.navbar-button:hover {
+  background-color: #0056b3;
+}
+
+.homepage-container {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial, sans-serif';
+}
+
+/* Navigation Bar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.hero-section {
+  height: 100vh;
+  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../asset/Home-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0 20px;
+  position: relative;
+}
+
+.hero-title {
+  font-size: 4.5rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: white;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+  line-height: 1.1;
+  max-width: 900px;
+  z-index: 10;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.hero-subtitle {
+  font-size: 1.4rem;
+  margin-bottom: 45px;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  max-width: 600px;
+  z-index: 10;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+
+.hero-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 16px 40px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+  z-index: 10;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.hero-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.5);
+}
+
+/* Animation keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .navbar-menu {
+    gap: 20px;
+  }
+  
+  .hero-title {
+    font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 15px 20px;
+    flex-direction: column;
+    gap: 15px;
+    position: fixed;
+    background-color: rgba(255, 255, 255, 0.98);
+  }
+  
+  .navbar-menu {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .hero-section {
+    padding: 140px 20px 20px;
+    min-height: 100vh;
+  }
+  
+  .hero-title {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  .hero-button {
+    padding: 14px 32px;
+    font-size: 14px;
+  }
+  
+  .navbar-button {
+    padding: 10px 24px;
+    font-size: 14px;
+  }
+}
+
