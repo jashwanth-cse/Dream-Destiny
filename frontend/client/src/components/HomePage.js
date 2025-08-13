@@ -1,34 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
-import Login from './Login';
-import SignUp from './SignUp';
 
 function HomePage() {
-  const [currentView, setCurrentView] = useState('home');
+  const navigate = useNavigate();
 
   const handleLoginClick = () => {
-    setCurrentView('login');
+    navigate('/login');
   };
 
-  const handleSwitchToSignUp = () => {
-    setCurrentView('signup');
+  const handlePlanTripClick = () => {
+    // You can add functionality for planning trips here
+    console.log('Plan Your Trip clicked');
   };
-
-  const handleSwitchToLogin = () => {
-    setCurrentView('login');
-  };
-
-  const handleBack = () => {
-    setCurrentView('home');
-  };
-
-  if (currentView === 'login') {
-    return <Login onSwitchToSignUp={handleSwitchToSignUp} onBack={handleBack} />;
-  }
-
-  if (currentView === 'signup') {
-    return <SignUp onSwitchToLogin={handleSwitchToLogin} onBack={handleBack} />;
-  }
 
   return (
     <div className="homepage-container">
@@ -62,7 +46,7 @@ function HomePage() {
           Personalized itineraries with accessibility in mind
         </p>
         
-        <button className="hero-button">
+        <button className="hero-button" onClick={handlePlanTripClick}>
           Plan Your Trip
         </button>
       </div>
