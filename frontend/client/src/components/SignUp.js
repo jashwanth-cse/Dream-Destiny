@@ -26,10 +26,14 @@ function SignUp({ onSwitchToLogin, onBack }) {
       return;
     }
     console.log('SignUp data:', formData);
+    // Simulate successful signup and redirect to travel booking
+    navigate('/travel-booking');
   };
 
   const handleGoogleSignUp = () => {
     console.log('Sign up with Google');
+    // Simulate successful Google signup and redirect
+    navigate('/travel-booking');
   };
 
   const handleLoginClick = () => {

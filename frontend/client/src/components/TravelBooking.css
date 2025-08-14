@@ -1,0 +1,439 @@
+/* Travel Booking Styles */
+.travel-booking {
+  min-height: 100vh;
+  background: /*linear-gradient(rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)), 
+              linear-gradient(135deg, #667eea 0%, #764ba2 100%), */
+              url('../asset/eiffel.webp');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-blend-mode: overlay;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.booking-container {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Transport Tabs */
+.transport-tabs {
+  display: flex;
+  background: #f8f9ff;
+  border-radius: 15px;
+  padding: 8px;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.transport-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 15px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #666;
+}
+
+.transport-tab.active {
+  background: #4285f4;
+  color: white;
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+}
+
+.transport-tab:hover:not(.active) {
+  background: rgba(66, 133, 244, 0.1);
+}
+
+.tab-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+/* Form Sections */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Destination with Suggestions */
+.destination-wrapper {
+  position: relative;
+}
+
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e1e5e9;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.suggestions-header {
+  padding: 10px 15px;
+  background: #f8f9ff;
+  font-weight: 600;
+  color: #4285f4;
+  border-bottom: 1px solid #e1e5e9;
+  font-size: 12px;
+}
+
+.suggestion-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestion-item:hover {
+  background: #f8f9ff;
+  color: #4285f4;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+/* Cost Display */
+.cost-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+  border-radius: 12px;
+  color: white;
+  text-align: center;
+}
+
+.cost-amount {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.cost-display small {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+/* Enhanced Checkbox Grid */
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.checkbox-label.enhanced {
+  padding: 12px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.checkbox-label.enhanced:hover {
+  border-color: #4285f4;
+  background: #f8f9ff;
+}
+
+.checkbox-label.enhanced input[type="checkbox"]:checked + .checkmark + .interest-text {
+  color: #4285f4;
+  font-weight: 600;
+}
+
+.interest-text {
+  font-size: 13px;
+}
+
+/* Labels */
+label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+/* Input Styles */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select {
+  padding: 15px;
+  border: 2px solid #e1e5e9;
+  border-radius: 12px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus {
+  outline: none;
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+}
+
+.destination-input {
+  width: 100%;
+}
+
+.transport-select {
+  cursor: pointer;
+}
+
+/* Checkbox and Radio Styles */
+.checkbox-group,
+.radio-group {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.checkbox-label,
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: normal;
+  margin-bottom: 0;
+}
+
+/* Custom Checkbox */
+.checkbox-label input[type="checkbox"] {
+  display: none;
+}
+
+.checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark {
+  background: #4285f4;
+  border-color: #4285f4;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Custom Radio */
+.radio-label input[type="radio"] {
+  display: none;
+}
+
+.radio-checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.radio-label input[type="radio"]:checked + .radio-checkmark {
+  border-color: #4285f4;
+}
+
+.radio-label input[type="radio"]:checked + .radio-checkmark::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: #4285f4;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Submit Button with Animation */
+.submit-btn {
+  background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+  color: white;
+  border: none;
+  padding: 18px 40px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-btn::before {
+  content: "✈️";
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  transition: left 0.3s ease;
+}
+
+.submit-btn:hover::before {
+  left: 15px;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(66, 133, 244, 0.3);
+  padding-left: 50px;
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Floating Animation for Transport Tabs */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+}
+
+.transport-tab:hover .tab-icon {
+  animation: float 2s ease-in-out infinite;
+}
+
+/* Pulse Animation for Active Tab */
+@keyframes pulse {
+  0% { box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3); }
+  50% { box-shadow: 0 6px 20px rgba(66, 133, 244, 0.5); }
+  100% { box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3); }
+}
+
+.transport-tab.active {
+  background: #4285f4;
+  color: white;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .travel-booking {
+    background-attachment: scroll;
+  }
+  
+  .booking-container {
+    margin: 10px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.96);
+  }
+  
+  .transport-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .transport-tab {
+    min-width: 80px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .checkbox-group,
+  .radio-group {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .suggestions-dropdown {
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .travel-booking {
+    padding: 10px;
+    background-attachment: scroll;
+  }
+  
+  .booking-container {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.98);
+  }
+  
+  .transport-tab {
+    padding: 10px 5px;
+    font-size: 10px;
+  }
+  
+  .tab-icon {
+    font-size: 16px;
+  }
+
+  .submit-btn:hover {
+    padding-left: 40px;
+  }
+
+  .submit-btn:hover::before {
+    left: 10px;
+  }
+}

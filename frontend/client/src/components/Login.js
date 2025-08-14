@@ -20,11 +20,15 @@ function Login({ onSwitchToSignUp, onBack }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Login data:', formData);
+    // Simulate successful login and redirect to travel booking
+    navigate('/travel-booking');
   };
 
   const handleGoogleLogin = () => {
     // Handle Google OAuth login
     console.log('Sign in with Google');
+    // Simulate successful Google login and redirect
+    navigate('/travel-booking');
   };
 
   const handleSignUpClick = () => {
