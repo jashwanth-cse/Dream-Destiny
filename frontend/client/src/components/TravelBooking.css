@@ -1,9 +1,10 @@
 /* Travel Booking Styles */
 .travel-booking {
   min-height: 100vh;
-  background: /*linear-gradient(rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)), 
+  background:
+    /*linear-gradient(rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)), 
               linear-gradient(135deg, #667eea 0%, #764ba2 100%), */
-              url('../asset/eiffel.webp');
+    url('../asset/eiffel.webp');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -91,51 +92,6 @@
   gap: 8px;
 }
 
-/* Destination with Suggestions */
-.destination-wrapper {
-  position: relative;
-}
-
-.suggestions-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 2px solid #e1e5e9;
-  border-top: none;
-  border-radius: 0 0 12px 12px;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.suggestions-header {
-  padding: 10px 15px;
-  background: #f8f9ff;
-  font-weight: 600;
-  color: #4285f4;
-  border-bottom: 1px solid #e1e5e9;
-  font-size: 12px;
-}
-
-.suggestion-item {
-  padding: 12px 15px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.suggestion-item:hover {
-  background: #f8f9ff;
-  color: #4285f4;
-}
-
-.suggestion-item:last-child {
-  border-bottom: none;
-}
-
 /* Cost Display */
 .cost-display {
   display: flex;
@@ -179,7 +135,7 @@
   background: #f8f9ff;
 }
 
-.checkbox-label.enhanced input[type="checkbox"]:checked + .checkmark + .interest-text {
+.checkbox-label.enhanced input[type="checkbox"]:checked+.checkmark+.interest-text {
   color: #4285f4;
   font-weight: 600;
 }
@@ -258,12 +214,12 @@ select:focus {
   transition: all 0.3s ease;
 }
 
-.checkbox-label input[type="checkbox"]:checked + .checkmark {
+.checkbox-label input[type="checkbox"]:checked+.checkmark {
   background: #4285f4;
   border-color: #4285f4;
 }
 
-.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+.checkbox-label input[type="checkbox"]:checked+.checkmark::after {
   content: "✓";
   position: absolute;
   top: 50%;
@@ -288,11 +244,11 @@ select:focus {
   transition: all 0.3s ease;
 }
 
-.radio-label input[type="radio"]:checked + .radio-checkmark {
+.radio-label input[type="radio"]:checked+.radio-checkmark {
   border-color: #4285f4;
 }
 
-.radio-label input[type="radio"]:checked + .radio-checkmark::after {
+.radio-label input[type="radio"]:checked+.radio-checkmark::after {
   content: "";
   width: 10px;
   height: 10px;
@@ -304,7 +260,7 @@ select:focus {
   transform: translate(-50%, -50%);
 }
 
-/* Submit Button with Animation */
+/* Submit Button */
 .submit-btn {
   background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
   color: white;
@@ -318,28 +274,11 @@ select:focus {
   margin-top: 20px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  position: relative;
-  overflow: hidden;
-}
-
-.submit-btn::before {
-  content: "✈️";
-  position: absolute;
-  left: -30px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 16px;
-  transition: left 0.3s ease;
-}
-
-.submit-btn:hover::before {
-  left: 15px;
 }
 
 .submit-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(66, 133, 244, 0.3);
-  padding-left: 50px;
 }
 
 .submit-btn:active {
@@ -348,8 +287,15 @@ select:focus {
 
 /* Floating Animation for Transport Tabs */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-3px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
 }
 
 .transport-tab:hover .tab-icon {
@@ -358,9 +304,17 @@ select:focus {
 
 /* Pulse Animation for Active Tab */
 @keyframes pulse {
-  0% { box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3); }
-  50% { box-shadow: 0 6px 20px rgba(66, 133, 244, 0.5); }
-  100% { box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3); }
+  0% {
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 6px 20px rgba(66, 133, 244, 0.5);
+  }
+
+  100% {
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+  }
 }
 
 .transport-tab.active {
@@ -374,26 +328,26 @@ select:focus {
   .travel-booking {
     background-attachment: scroll;
   }
-  
+
   .booking-container {
     margin: 10px;
     padding: 20px;
     background: rgba(255, 255, 255, 0.96);
   }
-  
+
   .transport-tabs {
     flex-wrap: wrap;
   }
-  
+
   .transport-tab {
     min-width: 80px;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
     gap: 15px;
   }
-  
+
   .checkbox-group,
   .radio-group {
     flex-direction: column;
@@ -414,17 +368,17 @@ select:focus {
     padding: 10px;
     background-attachment: scroll;
   }
-  
+
   .booking-container {
     padding: 15px;
     background: rgba(255, 255, 255, 0.98);
   }
-  
+
   .transport-tab {
     padding: 10px 5px;
     font-size: 10px;
   }
-  
+
   .tab-icon {
     font-size: 16px;
   }

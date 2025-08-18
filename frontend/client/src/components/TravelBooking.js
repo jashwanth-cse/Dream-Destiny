@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './TravelBooking.css';
 
 function TravelBooking() {
@@ -11,56 +11,8 @@ function TravelBooking() {
     endDate: '',
     interests: [],
     foodPreference: '',
-    accessibilityNeeds: [],
-    travelers: 1,
-    accommodation: '',
-    travelClass: 'Economy'
+    accessibilityNeeds: []
   });
-
-  const [popularDestinations] = useState([
-    'Paris, France', 'Tokyo, Japan', 'New York, USA', 'London, UK', 
-    'Dubai, UAE', 'Sydney, Australia', 'Rome, Italy', 'Barcelona, Spain'
-  ]);
-
-  const [estimatedCost, setEstimatedCost] = useState(0);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-
-  // Calculate estimated cost based on form data
-  useEffect(() => {
-    let cost = 0;
-    const budget = parseInt(formData.budget) || 0;
-    const days = parseInt(formData.days) || 1;
-    const travelers = parseInt(formData.travelers) || 1;
-
-    // Base cost calculation
-    if (budget > 0 && days > 0) {
-      cost = (budget / days) * travelers;
-      
-      // Adjust based on transport mode
-      switch (formData.transportMode) {
-        case 'Flight':
-          cost *= 1.2;
-          break;
-        case 'Train':
-          cost *= 0.8;
-          break;
-        case 'Bus':
-          cost *= 0.6;
-          break;
-        case 'Car Rental':
-          cost *= 0.9;
-          break;
-        default:
-          cost *= 0.7;
-      }
-
-      // Adjust based on travel class
-      if (formData.travelClass === 'Business') cost *= 1.5;
-      if (formData.travelClass === 'First') cost *= 2.0;
-    }
-
-    setEstimatedCost(Math.round(cost));
-  }, [formData.budget, formData.days, formData.travelers, formData.transportMode, formData.travelClass]);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -89,30 +41,7 @@ function TravelBooking() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Validate required fields
-    if (!formData.destination || !formData.budget || !formData.days || !formData.startDate) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    // Create trip summary
-    const tripSummary = {
-      ...formData,
-      estimatedCost,
-      bookingId: 'DD' + Date.now().toString().slice(-6),
-      bookingDate: new Date().toLocaleDateString()
-    };
-
-    console.log('Travel booking data:', tripSummary);
-    
-    // Show success message
-    alert(`🎉 Trip booked successfully!\n\nBooking ID: ${tripSummary.bookingId}\nDestination: ${formData.destination}\nEstimated Cost: $${estimatedCost}\n\nCheck your email for confirmation details!`);
-  };
-
-  const handleDestinationSuggestion = (destination) => {
-    setFormData(prev => ({ ...prev, destination }));
-    setShowSuggestions(false);
+    console.log('Travel booking data:', formData);
   };
 
   return (
@@ -140,47 +69,28 @@ function TravelBooking() {
             ))}
           </div>
 
-          {/* Travel Destination with Suggestions */}
+          {/* Travel Destination */}
           <div className="form-section">
-            <label>Travel Destination(s) *</label>
-            <div className="destination-wrapper">
-              <input
-                type="text"
-                name="destination"
-                placeholder="e.g., Paris, Rome, Tokyo"
-                value={formData.destination}
-                onChange={handleInputChange}
-                onFocus={() => setShowSuggestions(true)}
-                className="destination-input"
-                required
-              />
-              {showSuggestions && (
-                <div className="suggestions-dropdown">
-                  <div className="suggestions-header">Popular Destinations</div>
-                  {popularDestinations.map((dest, index) => (
-                    <div 
-                      key={index}
-                      className="suggestion-item"
-                      onClick={() => handleDestinationSuggestion(dest)}
-                    >
-                      🌍 {dest}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <label>Travel Destination(s)</label>
+            <input
+              type="text"
+              name="destination"
+              placeholder="e.g., Paris, Rome, Tokyo"
+              value={formData.destination}
+              onChange={handleInputChange}
+              className="destination-input"
+            />
           </div>
 
-          {/* Enhanced Travel Details Row */}
+          {/* Travel Details Row */}
           <div className="form-row">
             <div className="form-group">
-              <label>Mode of Transport *</label>
+              <label>Mode of Transport</label>
               <select
                 name="transportMode"
                 value={formData.transportMode}
                 onChange={handleInputChange}
                 className="transport-select"
-                required
               >
                 <option value="Flight">Flight</option>
                 <option value="Train">Train</option>
@@ -191,21 +101,19 @@ function TravelBooking() {
             </div>
 
             <div className="form-group">
-              <label>Budget * ($)</label>
+              <label>Budget</label>
               <input
                 type="number"
                 name="budget"
-                placeholder="2000"
+                placeholder="$ 2000"
                 value={formData.budget}
                 onChange={handleInputChange}
                 className="budget-input"
-                min="100"
-                required
               />
             </div>
 
             <div className="form-group">
-              <label>Number of Days *</label>
+              <label>Number of Days</label>
               <input
                 type="number"
                 name="days"
@@ -213,110 +121,47 @@ function TravelBooking() {
                 value={formData.days}
                 onChange={handleInputChange}
                 className="days-input"
-                min="1"
-                max="365"
-                required
               />
-            </div>
-          </div>
-
-          {/* Additional Travel Details */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>Number of Travelers</label>
-              <select
-                name="travelers"
-                value={formData.travelers}
-                onChange={handleInputChange}
-                className="travelers-select"
-              >
-                {[1,2,3,4,5,6,7,8].map(num => (
-                  <option key={num} value={num}>{num} {num === 1 ? 'Traveler' : 'Travelers'}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Travel Class</label>
-              <select
-                name="travelClass"
-                value={formData.travelClass}
-                onChange={handleInputChange}
-                className="class-select"
-              >
-                <option value="Economy">Economy</option>
-                <option value="Business">Business</option>
-                <option value="First">First Class</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Accommodation</label>
-              <select
-                name="accommodation"
-                value={formData.accommodation}
-                onChange={handleInputChange}
-                className="accommodation-select"
-              >
-                <option value="">Select accommodation</option>
-                <option value="Budget Hotel">Budget Hotel</option>
-                <option value="3-Star Hotel">3-Star Hotel</option>
-                <option value="4-Star Hotel">4-Star Hotel</option>
-                <option value="5-Star Hotel">5-Star Hotel</option>
-                <option value="Resort">Resort</option>
-                <option value="Hostel">Hostel</option>
-                <option value="Airbnb">Airbnb</option>
-              </select>
             </div>
           </div>
 
           {/* Travel Dates */}
           <div className="form-row">
             <div className="form-group">
-              <label>Departure Date *</label>
+              <label>Travel Dates</label>
               <input
                 type="date"
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleInputChange}
                 className="date-input"
-                min={new Date().toISOString().split('T')[0]}
-                required
               />
             </div>
             <div className="form-group">
-              <label>Return Date</label>
+              <label>&nbsp;</label>
               <input
                 type="date"
                 name="endDate"
                 value={formData.endDate}
                 onChange={handleInputChange}
                 className="date-input"
-                min={formData.startDate || new Date().toISOString().split('T')[0]}
               />
-            </div>
-            <div className="form-group">
-              <label>Estimated Cost</label>
-              <div className="cost-display">
-                <span className="cost-amount">${estimatedCost.toLocaleString()}</span>
-                <small>For {formData.travelers} traveler(s)</small>
-              </div>
             </div>
           </div>
 
-          {/* Enhanced Interests */}
+          {/* Interests */}
           <div className="form-section">
-            <label>Travel Interests</label>
-            <div className="checkbox-grid">
-              {['Adventure', 'Culture', 'Relaxation', 'Photography', 'Food & Cuisine', 'Shopping', 'Nightlife', 'Nature & Wildlife', 'Historical Sites', 'Beach & Water Sports'].map((interest) => (
-                <label key={interest} className="checkbox-label enhanced">
+            <label>Interests</label>
+            <div className="checkbox-group">
+              {['Adventure', 'Culture', 'Relaxation'].map((interest) => (
+                <label key={interest} className="checkbox-label">
                   <input
                     type="checkbox"
                     checked={formData.interests.includes(interest)}
                     onChange={() => handleInterestChange(interest)}
                   />
                   <span className="checkmark"></span>
-                  <span className="interest-text">{interest}</span>
+                  {interest}
                 </label>
               ))}
             </div>
