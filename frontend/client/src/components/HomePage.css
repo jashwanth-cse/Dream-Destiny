@@ -5,6 +5,62 @@
   font-size: 22px;
   font-weight: bold;
 }
+/* Common button base style */
+.navbar-button,
+.logout-btn {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+/* User welcome text */
+.welcome-text {
+  margin-right: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff; /* white to match navbar */
+}
+
+/* Align welcome + logout together */
+.user-controls {
+  display: flex;
+  align-items: center;
+}
+
+/* Login / Sign Up button */
+.navbar-button {
+  background-color: #1890ff; /* blue */
+  color: white;
+}
+
+.navbar-button:hover {
+  background-color: #1476cc; /* darker blue */
+  transform: scale(1.05);
+}
+
+.navbar-button:active {
+  background-color: #0f5b99;
+  transform: scale(0.95);
+}
+
+/* Logout button */
+.logout-btn {
+  background-color: #ff4d4f; /* red */
+  color: white;
+}
+
+.logout-btn:hover {
+  background-color: #d9363e; /* darker red */
+  transform: scale(1.05);
+}
+
+.logout-btn:active {
+  background-color: #b02a30;
+  transform: scale(0.95);
+}
 
 .navbar-brand-icon {
   margin-right: 10px;

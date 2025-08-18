@@ -1,17 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../firebase';  // ✅ Import firebase auth
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 import './HomePage.css';
 
 function HomePage() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
+  // ✅ Track login state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // ✅ Handle login
   const handleLoginClick = () => {
     navigate('/login');
   };
 
+  // ✅ Handle logout
+  const handleLogoutClick = async () => {
+    try {
+      await signOut(auth);
+      console.log("User logged out");
+      navigate('/'); // redirect to home
+    } catch (error) {
+      console.error("Logout Error:", error.message);
+    }
+  };
+
   const handlePlanTripClick = () => {
-    // You can add functionality for planning trips here
     console.log('Plan Your Trip clicked');
+    navigate("/travel-booking");
   };
 
   return (
@@ -29,15 +52,26 @@ function HomePage() {
           <span className="navbar-link">Accessibility & Inclusion</span>
           <span className="navbar-link">Features</span>
           
-          <button className="navbar-button" onClick={handleLoginClick}>
-           Login / Sign Up
-          </button>
+          {/* ✅ Conditionally show user info */}
+          {user ? (
+            <div className="user-controls">
+              <span className="welcome-text">
+                Welcome, {user.displayName || user.email} 👋
+              </span>
+              <button className="logout-btn" onClick={handleLogoutClick}>
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button className="navbar-button" onClick={handleLoginClick}>
+              Login / Sign Up
+            </button>
+          )}
         </div>
       </nav>
 
       {/* Hero Section */}
       <div className="hero-section">
-        {/* Main Content */}
         <h1 className="hero-title">
           Your Dream Trip Destined for You
         </h1>
