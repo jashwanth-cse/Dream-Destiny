@@ -260,6 +260,91 @@ select:focus {
   transform: translate(-50%, -50%);
 }
 
+/* Autocomplete Styles */
+.autocomplete-container {
+  position: relative;
+  width: 100%;
+}
+
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 5px;
+}
+
+.suggestion-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background: rgba(66, 133, 244, 0.1);
+  transform: translateX(2px);
+}
+
+.suggestion-item.loading {
+  color: #666;
+  cursor: default;
+  font-style: italic;
+}
+
+.suggestion-item.loading:hover {
+  background: none;
+  transform: none;
+}
+
+.suggestion-item.no-results {
+  color: #999;
+  cursor: default;
+  text-align: center;
+  font-style: italic;
+}
+
+.suggestion-item.no-results:hover {
+  background: none;
+  transform: none;
+}
+
+.suggestion-main {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.suggestion-secondary {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Read-only input styling */
+.readonly {
+  background: rgba(240, 240, 240, 0.8) !important;
+  color: #666 !important;
+  cursor: not-allowed !important;
+  border: 2px solid rgba(200, 200, 200, 0.5) !important;
+}
+
+.readonly:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(200, 200, 200, 0.3) !important;
+}
+
 /* Submit Button */
 .submit-btn {
   background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
@@ -283,6 +368,144 @@ select:focus {
 
 .submit-btn:active {
   transform: translateY(0);
+}
+
+/* Custom Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  animation: slideIn 0.3s ease;
+}
+
+.modal-header {
+  padding: 20px 25px 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header.success {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+}
+
+.modal-header.error {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: white;
+}
+
+.modal-header.info {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.modal-body p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+}
+
+.modal-footer {
+  padding: 15px 25px 25px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(66, 133, 244, 0.3);
+}
+
+.modal-btn:active {
+  transform: translateY(0);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* Floating Animation for Transport Tabs */

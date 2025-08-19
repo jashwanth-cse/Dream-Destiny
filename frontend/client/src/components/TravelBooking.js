@@ -18,8 +18,115 @@ function TravelBooking() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState("error"); // "error", "success", "info"
+
+  // Autocomplete states
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
   const navigate = useNavigate();
+
+  // Helper function to show modal
+  const showMessage = (message, type = "error") => {
+    setModalMessage(message);
+    setModalType(type);
+    setShowModal(true);
+  };
+
+  // Helper function to close modal
+  const closeModal = () => {
+    setShowModal(false);
+    setModalMessage("");
+  };
+
+  // Get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
+  // Get minimum end date (start date + 1 day)
+  const getMinEndDate = () => {
+    if (formData.startDate) {
+      const startDate = new Date(formData.startDate);
+      startDate.setDate(startDate.getDate() + 1);
+      return startDate.toISOString().split('T')[0];
+    }
+    return getTodayDate();
+  };
+
+  // Debounce function for API calls
+  const debounce = (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  };
+
+  // Fetch place suggestions from backend
+  const fetchPlaceSuggestions = async (query) => {
+    if (query.length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/places/autocomplete?query=${encodeURIComponent(query)}`);
+      const data = await response.json();
+
+      if (data.predictions) {
+        setSuggestions(data.predictions);
+        setShowSuggestions(true);
+      }
+    } catch (error) {
+      console.error("Error fetching place suggestions:", error);
+      setSuggestions([]);
+      setShowSuggestions(false);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  // Debounced version of fetchPlaceSuggestions
+  const debouncedFetchPlaces = debounce(fetchPlaceSuggestions, 300);
+
+  // Handle destination input change with autocomplete
+  const handleDestinationChange = (e) => {
+    const value = e.target.value;
+    setFormData({ ...formData, destination: value });
+
+    if (value.trim()) {
+      debouncedFetchPlaces(value);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  // Handle suggestion selection
+  const handleSuggestionSelect = (suggestion) => {
+    setFormData({ ...formData, destination: suggestion.description });
+    setShowSuggestions(false);
+    setSuggestions([]);
+  };
+
+  // Hide suggestions when clicking outside
+  const handleDestinationBlur = () => {
+    // Delay hiding to allow click on suggestions
+    setTimeout(() => {
+      setShowSuggestions(false);
+    }, 200);
+  };
 
   // ✅ Check if user is signed in
   useEffect(() => {
@@ -34,10 +141,30 @@ function TravelBooking() {
   }, [navigate]);
 
   const handleInputChange = (e) => {
-    setFormData({
+    const { name, value } = e.target;
+    let updatedFormData = {
       ...formData,
-      [e.target.name]: e.target.value,
-    });
+      [name]: value,
+    };
+
+    // Auto-calculate days when dates change
+    if (name === 'startDate' || name === 'endDate') {
+      const startDate = name === 'startDate' ? value : formData.startDate;
+      const endDate = name === 'endDate' ? value : formData.endDate;
+
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        if (end > start) {
+          const timeDiff = end.getTime() - start.getTime();
+          const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+          updatedFormData.days = daysDiff.toString();
+        }
+      }
+    }
+
+    setFormData(updatedFormData);
   };
 
   const handleInterestChange = (interest) => {
@@ -58,10 +185,75 @@ function TravelBooking() {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Travel booking data:", formData);
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // Validate required fields
+  const requiredFields = [
+    { field: 'destination', label: 'Travel Destination' },
+    { field: 'budget', label: 'Budget' },
+    { field: 'startDate', label: 'Start Date' },
+    { field: 'endDate', label: 'End Date' },
+    { field: 'foodPreference', label: 'Food Preference' }
+  ];
+
+  const missingFields = requiredFields.filter(({ field }) => !formData[field] || formData[field].trim() === '');
+
+  if (missingFields.length > 0) {
+    const missingFieldNames = missingFields.map(({ label }) => label).join(', ');
+    showMessage(`Please fill in all required fields: ${missingFieldNames}`, "error");
+    return;
+  }
+
+  // Additional validation
+  if (parseInt(formData.budget) <= 0) {
+    showMessage("Please enter a valid budget amount greater than 0", "error");
+    return;
+  }
+
+  // Check if dates are valid and end date is after start date
+  const startDate = new Date(formData.startDate);
+  const endDate = new Date(formData.endDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to compare only dates
+
+  if (startDate < today) {
+    showMessage("Start date cannot be in the past", "error");
+    return;
+  }
+
+  if (endDate <= startDate) {
+    showMessage("End date must be after start date", "error");
+    return;
+  }
+
+  // Check if days were calculated (should be auto-calculated)
+  if (!formData.days || parseInt(formData.days) <= 0) {
+    showMessage("Please select valid start and end dates", "error");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/routers/generate-itinerary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+    if (data.itinerary) {
+      showMessage("Itinerary generated successfully! Check the console for details.", "success");
+      console.log("Generated itinerary:", data.itinerary);
+    } else {
+      showMessage("No itinerary was generated. Please try again.", "error");
+    }
+    // ✅ setItinerary(data.itinerary); // if you want to display it
+  } catch (error) {
+    console.error("Error generating itinerary:", error);
+    showMessage("Failed to generate itinerary. Please check your connection and try again.", "error");
+  }
+};
+
 
   // ✅ Logout function
   const handleLogout = async () => {
@@ -119,14 +311,45 @@ function TravelBooking() {
           {/* Travel Destination */}
           <div className="form-section">
             <label>Travel Destination(s)</label>
-            <input
-              type="text"
-              name="destination"
-              placeholder="e.g., Paris, Rome, Tokyo"
-              value={formData.destination}
-              onChange={handleInputChange}
-              className="destination-input"
-            />
+            <div className="autocomplete-container">
+              <input
+                type="text"
+                name="destination"
+                placeholder="Start typing a destination..."
+                value={formData.destination}
+                onChange={handleDestinationChange}
+                onBlur={handleDestinationBlur}
+                onFocus={() => formData.destination && debouncedFetchPlaces(formData.destination)}
+                className="destination-input"
+                autoComplete="off"
+              />
+
+              {/* Autocomplete Suggestions */}
+              {showSuggestions && (
+                <div className="suggestions-dropdown">
+                  {isLoadingSuggestions ? (
+                    <div className="suggestion-item loading">
+                      <span>🔍 Searching places...</span>
+                    </div>
+                  ) : suggestions.length > 0 ? (
+                    suggestions.map((suggestion, index) => (
+                      <div
+                        key={suggestion.place_id || index}
+                        className="suggestion-item"
+                        onClick={() => handleSuggestionSelect(suggestion)}
+                      >
+                        <div className="suggestion-main">{suggestion.main_text}</div>
+                        <div className="suggestion-secondary">{suggestion.secondary_text}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="suggestion-item no-results">
+                      <span>No places found</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Travel Details Row */}
@@ -164,10 +387,11 @@ function TravelBooking() {
               <input
                 type="number"
                 name="days"
-                placeholder="7"
+                placeholder="Select date from calendar"
                 value={formData.days}
-                onChange={handleInputChange}
-                className="days-input"
+                readOnly
+                className="days-input readonly"
+                title="This field is automatically calculated based on your selected dates"
               />
             </div>
           </div>
@@ -182,6 +406,7 @@ function TravelBooking() {
                 value={formData.startDate}
                 onChange={handleInputChange}
                 className="date-input"
+                min={getTodayDate()}
               />
             </div>
             <div className="form-group">
@@ -192,6 +417,7 @@ function TravelBooking() {
                 value={formData.endDate}
                 onChange={handleInputChange}
                 className="date-input"
+                min={getMinEndDate()}
               />
             </div>
           </div>
@@ -262,6 +488,32 @@ function TravelBooking() {
           </button>
         </form>
       </div>
+
+      {/* Custom Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className={`modal-header ${modalType}`}>
+              <h3>
+                {modalType === "success" && "✅ Success"}
+                {modalType === "error" && "❌ Error"}
+                {modalType === "info" && "ℹ️ Information"}
+              </h3>
+              <button className="modal-close" onClick={closeModal}>
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>{modalMessage}</p>
+            </div>
+            <div className="modal-footer">
+              <button className="modal-btn" onClick={closeModal}>
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
