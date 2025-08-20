@@ -29,6 +29,9 @@ function TravelBooking() {
 
   const navigate = useNavigate();
 
+  // API base URL from environment variables
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000';
+
   // Helper function to show modal
   const showMessage = (message, type = "error") => {
     setModalMessage(message);
@@ -81,7 +84,7 @@ function TravelBooking() {
 
     setIsLoadingSuggestions(true);
     try {
-      const response = await fetch(`http://127.0.0.1:8000/places/autocomplete?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`${API_BASE_URL}/places/autocomplete?query=${encodeURIComponent(query)}`);
       const data = await response.json();
 
       if (data.predictions) {
@@ -234,7 +237,7 @@ const handleSubmit = async (e) => {
   }
 
   try {
-    const response = await fetch("http://127.0.0.1:8000/routers/generate-itinerary", {
+    const response = await fetch(`${API_BASE_URL}/routers/generate-itinerary`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
