@@ -5,17 +5,26 @@ import { auth } from "../firebase";   // ✅ make sure path is correct
 import "./TravelBooking.css";
 
 function TravelBooking() {
-  const [formData, setFormData] = useState({
-    destination: "",
-    transportMode: "Flight",
-    budget: "",
-    days: "",
-    startDate: "",
-    endDate: "",
-    interests: [],
-    foodPreference: "",
-    accessibilityNeeds: [],
-  });
+  // Load form data from localStorage or use defaults
+  const loadFormData = () => {
+    const saved = localStorage.getItem('travelBookingForm');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return {
+      destination: "",
+      transportMode: "Flight",
+      budget: "",
+      days: "",
+      startDate: "",
+      endDate: "",
+      interests: [],
+      foodPreference: "",
+      accessibilityNeeds: [],
+    };
+  };
+
+  const [formData, setFormData] = useState(loadFormData);
 
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -26,6 +35,9 @@ function TravelBooking() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+
+  // Itinerary generation state
+  const [isGeneratingItinerary, setIsGeneratingItinerary] = useState(false);
 
   const navigate = useNavigate();
 
@@ -130,6 +142,13 @@ function TravelBooking() {
       setShowSuggestions(false);
     }, 200);
   };
+
+
+
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('travelBookingForm', JSON.stringify(formData));
+  }, [formData]);
 
   // ✅ Check if user is signed in
   useEffect(() => {
@@ -237,6 +256,8 @@ const handleSubmit = async (e) => {
   }
 
   try {
+    setIsGeneratingItinerary(true);
+
     const response = await fetch(`${API_BASE_URL}/routers/generate-itinerary`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -245,15 +266,40 @@ const handleSubmit = async (e) => {
 
     const data = await response.json();
     if (data.itinerary) {
-      showMessage("Itinerary generated successfully! Check the console for details.", "success");
-      console.log("Generated itinerary:", data.itinerary);
+      const tripDetails = {
+        destination: formData.destination,
+        days: formData.days,
+        budget: formData.budget,
+        transportMode: formData.transportMode,
+        foodPreference: formData.foodPreference,
+        startDate: formData.startDate,
+        endDate: formData.endDate
+      };
+
+      // Save to localStorage for persistence
+      const itineraryData = {
+        currentItinerary: data.itinerary,
+        originalItinerary: data.itinerary,
+        tripDetails: tripDetails,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem('currentItinerary', JSON.stringify(itineraryData));
+
+      // Navigate to itinerary display page with data
+      navigate("/itinerary", {
+        state: {
+          itinerary: data.itinerary,
+          tripDetails: tripDetails
+        }
+      });
     } else {
       showMessage("No itinerary was generated. Please try again.", "error");
     }
-    // ✅ setItinerary(data.itinerary); // if you want to display it
   } catch (error) {
     console.error("Error generating itinerary:", error);
     showMessage("Failed to generate itinerary. Please check your connection and try again.", "error");
+  } finally {
+    setIsGeneratingItinerary(false);
   }
 };
 
@@ -486,8 +532,15 @@ const handleSubmit = async (e) => {
           </div>
 
           {/* Submit Button */}
-          <button type="submit" className="submit-btn">
-            Destine My Trip
+          <button type="submit" className="submit-btn" disabled={isGeneratingItinerary}>
+            {isGeneratingItinerary ? (
+              <>
+                <span className="loading-spinner"></span>
+                Generating Itinerary...
+              </>
+            ) : (
+              "Destine My Trip"
+            )}
           </button>
         </form>
       </div>
@@ -517,6 +570,8 @@ const handleSubmit = async (e) => {
           </div>
         </div>
       )}
+
+
     </div>
   );
 }

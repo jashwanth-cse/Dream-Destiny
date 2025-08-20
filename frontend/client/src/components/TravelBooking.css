@@ -508,6 +508,200 @@ select:focus {
   }
 }
 
+/* Loading Spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.submit-btn:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Itinerary Modal Styles */
+.itinerary-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+  padding: 20px;
+}
+
+.itinerary-modal-content {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: slideIn 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.itinerary-modal-header {
+  padding: 20px 25px 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+  color: white;
+  border-radius: 20px 20px 0 0;
+}
+
+.itinerary-modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.itinerary-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.itinerary-modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.itinerary-modal-body {
+  padding: 25px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.itinerary-content {
+  line-height: 1.6;
+}
+
+.day-header {
+  font-size: 18px;
+  font-weight: 700;
+  color: #4285f4;
+  margin: 20px 0 10px 0;
+  padding: 10px 0;
+  border-bottom: 2px solid rgba(66, 133, 244, 0.2);
+}
+
+.day-header:first-child {
+  margin-top: 0;
+}
+
+.day-content {
+  margin: 8px 0;
+  color: #333;
+  padding-left: 15px;
+}
+
+.itinerary-modal-footer {
+  padding: 15px 25px 25px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.itinerary-modal-btn {
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.itinerary-modal-btn.secondary {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.itinerary-modal-btn.secondary:hover {
+  background: #e0e0e0;
+  transform: translateY(-2px);
+}
+
+.itinerary-modal-btn.primary {
+  background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+  color: white;
+}
+
+.itinerary-modal-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(66, 133, 244, 0.3);
+}
+
+/* Responsive Design for Itinerary Modal */
+@media (max-width: 768px) {
+  .itinerary-modal-overlay {
+    padding: 10px;
+  }
+
+  .itinerary-modal-content {
+    max-height: 95vh;
+  }
+
+  .itinerary-modal-header h3 {
+    font-size: 18px;
+  }
+
+  .day-header {
+    font-size: 16px;
+  }
+
+  .itinerary-modal-footer {
+    flex-direction: column;
+  }
+
+  .itinerary-modal-btn {
+    width: 100%;
+  }
+}
+
 /* Floating Animation for Transport Tabs */
 @keyframes float {
 

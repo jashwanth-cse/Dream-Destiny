@@ -19,7 +19,7 @@ app.add_middleware(
 # ✅ Store your API keys securely
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyBh9q8O9CUlQ2ey4RMzLzI8t7kFQxV9JMI")
 GEMINI_API_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
     f"?key={GEMINI_API_KEY}"
 )
 
@@ -49,18 +49,31 @@ def generate_itinerary(trip: TripRequest):
         budget = int(trip.budget) if trip.budget else 5000
 
         prompt = f"""
-        Create a {days}-day travel itinerary for {trip.destination}.
+        Create a detailed {days}-day travel itinerary for {trip.destination}.
         Mode of transport: {trip.transportMode}.
-        Budget: ${budget}.
+        Budget: ₹{budget} INR.
         Dates: {trip.startDate} to {trip.endDate}.
         Interests: {', '.join(trip.interests) if trip.interests else 'general sightseeing'}.
         Food preference: {trip.foodPreference}.
         Accessibility needs: {', '.join(trip.accessibilityNeeds) if trip.accessibilityNeeds else 'None'}.
 
-        👉 Please give the output strictly in this format:
-        Day 1: ...
-        Day 2: ...
-        (continue day-wise with activities, food, and travel notes)
+        👉 Please provide ONLY the itinerary in this EXACT format (no extra text, introductions, or conclusions):
+
+        Day 1: [Brief day title]
+        Morning: [Activity with time and location]
+        Afternoon: [Activity with time and location]
+        Evening: [Activity with time and location]
+        Meals: [Restaurant suggestions with cuisine type]
+        Accommodation: [Hotel/stay suggestion]
+
+        Day 2: [Brief day title]
+        Morning: [Activity with time and location]
+        Afternoon: [Activity with time and location]
+        Evening: [Activity with time and location]
+        Meals: [Restaurant suggestions with cuisine type]
+        Accommodation: [Hotel/stay suggestion]
+
+        Continue this format for all {days} days. Be specific with timings, locations, and costs in INR.
         """
 
         print(f"Generated prompt: {prompt[:200]}...")  # Debug logging
@@ -135,4 +148,79 @@ def get_places_autocomplete(query: str):
 
     except Exception as e:
         print(f"Places autocomplete error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/chat/followup")
+def chat_followup(request: dict):
+    """
+    Handle follow-up questions and modify the itinerary
+    """
+    try:
+        message = request.get("message", "")
+        original_itinerary = request.get("originalItinerary", "")
+
+        if not message:
+            raise HTTPException(status_code=400, detail="Message is required")
+
+        print(f"Received follow-up message: {message[:100]}...")  # Debug logging
+
+        # Create a prompt that modifies the existing itinerary
+        modification_prompt = f"""
+        Here is the current itinerary:
+        {original_itinerary}
+
+        User's modification request: {message}
+
+        Please provide a MODIFIED version of the COMPLETE itinerary incorporating the user's request.
+
+        👉 Provide ONLY the updated itinerary in this EXACT format (no explanations or chat responses):
+
+        Day 1: [Brief day title]
+        Morning: [Activity with time and location]
+        Afternoon: [Activity with time and location]
+        Evening: [Activity with time and location]
+        Meals: [Restaurant suggestions with cuisine type]
+        Accommodation: [Hotel/stay suggestion]
+
+        Day 2: [Brief day title]
+        Morning: [Activity with time and location]
+        Afternoon: [Activity with time and location]
+        Evening: [Activity with time and location]
+        Meals: [Restaurant suggestions with cuisine type]
+        Accommodation: [Hotel/stay suggestion]
+
+        Continue for all days. Make the requested changes while keeping the rest of the itinerary intact.
+        Use INR currency for all costs.
+        """
+
+        response = requests.post(
+            GEMINI_API_URL,
+            headers={"Content-Type": "application/json"},
+            json={"contents": [{"parts": [{"text": modification_prompt}]}]},
+        )
+
+        print(f"Gemini API response status: {response.status_code}")  # Debug logging
+
+        if response.status_code != 200:
+            print(f"Gemini API error: {response.text}")  # Debug logging
+            raise HTTPException(status_code=500, detail=f"Gemini API failed: {response.text}")
+
+        data = response.json()
+        modified_itinerary = (
+            data.get("candidates", [{}])[0]
+            .get("content", {})
+            .get("parts", [{}])[0]
+            .get("text", "I'm sorry, I couldn't process your request. Please try again.")
+        )
+
+        print(f"Generated modified itinerary length: {len(modified_itinerary)}")  # Debug logging
+
+        return {
+            "type": "itinerary_update",
+            "modified_itinerary": modified_itinerary,
+            "chat_response": f"I've updated your itinerary based on your request: '{message}'"
+        }
+
+    except Exception as e:
+        print(f"Chat followup error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
