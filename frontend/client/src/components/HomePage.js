@@ -2,19 +2,40 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';  // ✅ Import firebase auth
 import { signOut, onAuthStateChanged } from 'firebase/auth';
+import LoadingSpinner from './LoadingSpinner';
+import PageTransition from './PageTransition';
+import LoadingButton from './LoadingButton';
+import useButtonLoading from '../hooks/useButtonLoading';
 import './HomePage.css';
 
 function HomePage() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [showJourneyModal, setShowJourneyModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
+  // Button loading states
+  const {
+    isButtonLoading,
+    executeWithLoading
+  } = useButtonLoading();
 
   // ✅ Track login state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+
+      // If user becomes null (logged out) and we're in loading state, redirect
+      if (!currentUser && isLoading && loadingMessage.includes("Logging out")) {
+        setTimeout(() => {
+          setIsLoading(false);
+          navigate('/');
+        }, 1000);
+      }
     });
     return () => unsubscribe();
-  }, []);
+  }, [isLoading, loadingMessage, navigate]);
 
   // ✅ Handle login
   const handleLoginClick = () => {
@@ -23,22 +44,56 @@ function HomePage() {
 
   // ✅ Handle logout
   const handleLogoutClick = async () => {
-    try {
+    await executeWithLoading('logout', async () => {
+      setIsLoading(true);
+      setLoadingMessage("Logging out... Redirecting to home...");
+
       await signOut(auth);
       console.log("User logged out");
-      navigate('/'); // redirect to home
-    } catch (error) {
-      console.error("Logout Error:", error.message);
-    }
+
+      // Force redirect after logout
+      setTimeout(() => {
+        setIsLoading(false);
+        window.location.href = '/'; // Force page reload to ensure clean state
+      }, 2000);
+    }, 'Logging out...');
   };
 
-  const handlePlanTripClick = () => {
-    console.log('Plan Your Trip clicked');
-    navigate("/travel-booking");
+  const handlePlanTripClick = async () => {
+    await executeWithLoading('planTrip', async () => {
+      if (user) {
+        // Small delay for better UX
+        await new Promise(resolve => setTimeout(resolve, 800));
+        setShowJourneyModal(true);
+      } else {
+        // Small delay for better UX
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        navigate("/login");
+      }
+    }, user ? 'Opening journey options...' : 'Redirecting to login...');
+  };
+
+  const handleJourneyTypeSelect = async (journeyType) => {
+    await executeWithLoading(`journey-${journeyType}`, async () => {
+      setShowJourneyModal(false);
+      // Small delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      if (journeyType === 'single') {
+        navigate("/travel-booking");
+      } else if (journeyType === 'multi') {
+        navigate("/multi-destination");
+      }
+    }, journeyType === 'single' ? 'Loading single destination...' : 'Loading multi-destination...');
+  };
+
+  const closeJourneyModal = () => {
+    setShowJourneyModal(false);
   };
 
   return (
-    <div className="homepage-container">
+    <PageTransition isLoading={isLoading} loadingMessage={loadingMessage}>
+      <div className="homepage-container">
       {/* Navigation Bar */}
       <nav className="navbar">
         <div className="navbar-brand">
@@ -58,9 +113,16 @@ function HomePage() {
               <span className="welcome-text">
                 Welcome, {user.displayName || user.email} 👋
               </span>
-              <button className="logout-btn" onClick={handleLogoutClick}>
+              <LoadingButton
+                className="logout-btn"
+                onClick={handleLogoutClick}
+                isLoading={isButtonLoading('logout')}
+                loadingText="Logging out..."
+                variant="danger"
+                size="medium"
+              >
                 Logout
-              </button>
+              </LoadingButton>
             </div>
           ) : (
             <button className="navbar-button" onClick={handleLoginClick}>
@@ -80,11 +142,74 @@ function HomePage() {
           Personalized itineraries with accessibility in mind
         </p>
         
-        <button className="hero-button" onClick={handlePlanTripClick}>
+        <LoadingButton
+          className="hero-button"
+          onClick={handlePlanTripClick}
+          isLoading={isButtonLoading('planTrip')}
+          loadingText={user ? 'Opening journey options...' : 'Redirecting to login...'}
+          variant="primary"
+          size="large"
+        >
           Plan Your Trip
-        </button>
+        </LoadingButton>
       </div>
-    </div>
+
+      {/* Journey Type Selection Modal */}
+      {showJourneyModal && (
+        <div className="journey-modal-overlay" onClick={closeJourneyModal}>
+          <div className="journey-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="journey-modal-header">
+              <h3>🌍 Choose Your Journey Type</h3>
+              <button className="journey-modal-close" onClick={closeJourneyModal}>
+                ×
+              </button>
+            </div>
+            <div className="journey-modal-body">
+              <p>What type of trip are you planning?</p>
+
+              <div className="journey-options">
+                <LoadingButton
+                  className="journey-option"
+                  onClick={() => handleJourneyTypeSelect('single')}
+                  isLoading={isButtonLoading('journey-single')}
+                  loadingText="Loading single destination..."
+                  variant="ghost"
+                  size="large"
+                >
+                  <div className="journey-content">
+                    <div className="journey-icon">🎯</div>
+                    <h4>Single Destination</h4>
+                    <p>Plan a trip to one amazing destination</p>
+                    <div className="journey-example">
+                      Example: Delhi → Paris
+                    </div>
+                  </div>
+                </LoadingButton>
+
+                <LoadingButton
+                  className="journey-option"
+                  onClick={() => handleJourneyTypeSelect('multi')}
+                  isLoading={isButtonLoading('journey-multi')}
+                  loadingText="Loading multi-destination..."
+                  variant="ghost"
+                  size="large"
+                >
+                  <div className="journey-content">
+                    <div className="journey-icon">🗺️</div>
+                    <h4>Multi-Destination Journey</h4>
+                    <p>Explore multiple cities in one trip</p>
+                    <div className="journey-example">
+                      Example: Delhi → Paris → Rome → Barcelona
+                    </div>
+                  </div>
+                </LoadingButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
+    </PageTransition>
   );
 }
 

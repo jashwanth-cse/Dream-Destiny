@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
+import LoadingSpinner from "./LoadingSpinner";
+import PageTransition from "./PageTransition";
 import "./Auth.css";
 
 function Signup() {
@@ -9,7 +11,26 @@ function Signup() {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+  const [isEmailLoading, setIsEmailLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsLoading(true);
+        setLoadingMessage("You're already logged in! Redirecting to home...");
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
 
   // Convert Firebase error codes to user-friendly messages
   const getErrorMessage = (errorCode) => {
@@ -29,6 +50,12 @@ function Signup() {
       default:
         return 'Sign up failed. Please try again.';
     }
+  };
+
+  // Show message function
+  const showMessage = (message) => {
+    setModalMessage(message);
+    setShowModal(true);
   };
 
   // Show error modal
@@ -60,34 +87,91 @@ function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsEmailLoading(true);
+    setError("");
+
     try {
       await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       console.log("Signup successful ✅");
-      navigate("/travel-booking");
+
+      setIsLoading(true);
+      setLoadingMessage("Account created successfully! Redirecting to home...");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     } catch (err) {
       console.error("Signup error:", err);
       showErrorModal(err.code);
+      setIsEmailLoading(false);
     }
   };
 
   const handleGoogleSignup = async () => {
+    setIsGoogleLoading(true);
+    setError("");
+
     try {
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+
+      // Debug logging
+      console.log("Google signup result:", result);
+      console.log("Token response:", result._tokenResponse);
+      console.log("Is new user:", result._tokenResponse?.isNewUser);
+
+      // Check if this user already exists (should login instead)
+      // For existing users, isNewUser will be false or undefined
+      const isNewUser = result._tokenResponse?.isNewUser;
+
+      if (isNewUser === false) {
+        // Sign out the user since they should login instead
+        await auth.signOut();
+        console.log("Existing user detected, signed out and showing message");
+
+        // Add a small delay to ensure signOut completes
+        setTimeout(() => {
+          showMessage("✅ Account already exists with this Google account. Please login instead.");
+          setIsGoogleLoading(false);
+
+          // Optionally redirect to login after showing message
+          setTimeout(() => {
+            if (window.confirm("Would you like to go to the login page now?")) {
+              navigate("/login");
+            }
+          }, 3000);
+        }, 500);
+        return;
+      }
+
       console.log("Google signup successful ✅");
-      navigate("/travel-booking");
+
+      setIsLoading(true);
+      setLoadingMessage("Google account created successfully! Redirecting to home...");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     } catch (err) {
       console.error("Google signup error:", err);
-      showErrorModal(err.code);
+      if (err.code === 'auth/popup-closed-by-user') {
+        showMessage("Signup cancelled. Please try again.");
+      } else if (err.code === 'auth/account-exists-with-different-credential') {
+        showMessage("Account already exists with this email. Please login instead.");
+      } else {
+        showErrorModal(err.code);
+      }
+      setIsGoogleLoading(false);
     }
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <div className="login-form">
-          <h1>Sign Up</h1>
+    <PageTransition isLoading={isLoading} loadingMessage={loadingMessage}>
+      <div className="login-page">
+        <div className="login-container">
+          <div className="login-form">
+            <h1>Sign Up</h1>
 
-          <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
             <input
               type="email"
               name="email"
@@ -104,13 +188,39 @@ function Signup() {
               onChange={handleChange}
               required
             />
-            <button type="submit" className="login-btn">
-              Sign Up
+            <button
+              type="submit"
+              className={`login-btn ${isEmailLoading ? 'btn-loading' : ''}`}
+              disabled={isEmailLoading || isLoading}
+            >
+              {isEmailLoading ? 'Creating account...' : 'Sign Up'}
             </button>
           </form>
 
-          <button className="google-btn" onClick={handleGoogleSignup}>
-            Sign up with Google
+          <button
+            className={`google-btn ${isGoogleLoading ? 'btn-loading' : ''}`}
+            onClick={handleGoogleSignup}
+            disabled={isGoogleLoading || isLoading}
+          >
+            {isGoogleLoading ? 'Creating account...' : (
+              <>
+                <span style={{
+                  fontSize: '18px',
+                  marginRight: '8px',
+                  fontWeight: 'bold',
+                  color: '#4285f4',
+                  background: 'white',
+                  borderRadius: '50%',
+                  width: '20px',
+                  height: '20px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid #dadce0'
+                }}>G</span>
+                Sign up with Google
+              </>
+            )}
           </button>
 
           <p className="signup-link">
@@ -141,7 +251,8 @@ function Signup() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </PageTransition>
   );
 }
 

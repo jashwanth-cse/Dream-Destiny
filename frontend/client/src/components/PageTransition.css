@@ -1,0 +1,327 @@
+/* Page Transition Container */
+.page-transition-container {
+  width: 100%;
+  height: 100%;
+  transition: all var(--transition-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Transition States */
+.page-transition-hidden {
+  opacity: 0;
+}
+
+.page-transition-visible {
+  opacity: 1;
+}
+
+.page-transition-transitioning {
+  pointer-events: none;
+}
+
+/* Fade Transition */
+.page-transition-fade.page-transition-hidden {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-transition-fade.page-transition-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Slide Up Transition */
+.page-transition-slide-up.page-transition-hidden {
+  opacity: 0;
+  transform: translateY(50px);
+}
+
+.page-transition-slide-up.page-transition-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Slide Down Transition */
+.page-transition-slide-down.page-transition-hidden {
+  opacity: 0;
+  transform: translateY(-50px);
+}
+
+.page-transition-slide-down.page-transition-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Slide Left Transition */
+.page-transition-slide-left.page-transition-hidden {
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+.page-transition-slide-left.page-transition-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Slide Right Transition */
+.page-transition-slide-right.page-transition-hidden {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+.page-transition-slide-right.page-transition-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Scale Transition */
+.page-transition-scale.page-transition-hidden {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.page-transition-scale.page-transition-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Rotate Transition */
+.page-transition-rotate.page-transition-hidden {
+  opacity: 0;
+  transform: rotateY(15deg) scale(0.95);
+}
+
+.page-transition-rotate.page-transition-visible {
+  opacity: 1;
+  transform: rotateY(0deg) scale(1);
+}
+
+/* Page Content Transitions (Legacy Support) */
+.page-content {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.page-content-hidden {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-content-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Route Transition Animations */
+.route-enter {
+  opacity: 0;
+  transform: translateX(100px);
+}
+
+.route-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.route-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.route-exit-active {
+  opacity: 0;
+  transform: translateX(-100px);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+/* Stagger Animation for Child Elements */
+.page-transition-container .stagger-item {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: staggerIn 0.6s ease forwards;
+}
+
+.page-transition-container .stagger-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.page-transition-container .stagger-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.page-transition-container .stagger-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.page-transition-container .stagger-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.page-transition-container .stagger-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Smooth Scroll Behavior */
+.page-transition-container {
+  scroll-behavior: smooth;
+}
+
+/* Loading State Overlay */
+.page-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Button Hover Effects */
+.page-transition-container button,
+.page-transition-container .btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-transition-container button:hover,
+.page-transition-container .btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Form Element Transitions */
+.page-transition-container input,
+.page-transition-container select,
+.page-transition-container textarea {
+  transition: all 0.3s ease;
+}
+
+.page-transition-container input:focus,
+.page-transition-container select:focus,
+.page-transition-container textarea:focus {
+  transform: translateY(-1px);
+}
+
+/* Card Hover Effects */
+.page-transition-container .card,
+.page-transition-container .form-section {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-transition-container .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Animations */
+@keyframes staggerIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition-container,
+  .page-content,
+  .route-enter-active,
+  .route-exit-active {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .page-transition-container .stagger-item {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .page-transition-container {
+    --transition-duration: 200ms;
+  }
+  
+  .page-transition-slide-up.page-transition-hidden,
+  .page-transition-slide-down.page-transition-hidden {
+    transform: translateY(30px);
+  }
+  
+  .page-transition-slide-left.page-transition-hidden,
+  .page-transition-slide-right.page-transition-hidden {
+    transform: translateX(30px);
+  }
+}

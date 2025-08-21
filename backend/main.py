@@ -29,6 +29,7 @@ GOOGLE_PLACES_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/jso
 
 # Schema for incoming request
 class TripRequest(BaseModel):
+    source: str
     destination: str
     transportMode: str
     budget: str  # Changed to str to handle frontend input
@@ -49,7 +50,7 @@ def generate_itinerary(trip: TripRequest):
         budget = int(trip.budget) if trip.budget else 5000
 
         prompt = f"""
-        Create a detailed {days}-day travel itinerary for {trip.destination}.
+        Create a detailed {days}-day travel itinerary from {trip.source} to {trip.destination}.
         Mode of transport: {trip.transportMode}.
         Budget: ₹{budget} INR.
         Dates: {trip.startDate} to {trip.endDate}.
@@ -59,21 +60,22 @@ def generate_itinerary(trip: TripRequest):
 
         👉 Please provide ONLY the itinerary in this EXACT format (no extra text, introductions, or conclusions):
 
-        Day 1: [Brief day title]
+        Day 1: Departure from {trip.source} to {trip.destination}
+        Morning: [Travel arrangements and departure activities]
+        Afternoon: [Arrival and initial activities in {trip.destination}]
+        Evening: [Evening activities and settling in]
+        Meals: [Restaurant suggestions with cuisine type]
+        Accommodation: [Hotel/stay suggestion]
+
+        Day 2: Exploring {trip.destination}
         Morning: [Activity with time and location]
         Afternoon: [Activity with time and location]
         Evening: [Activity with time and location]
         Meals: [Restaurant suggestions with cuisine type]
         Accommodation: [Hotel/stay suggestion]
 
-        Day 2: [Brief day title]
-        Morning: [Activity with time and location]
-        Afternoon: [Activity with time and location]
-        Evening: [Activity with time and location]
-        Meals: [Restaurant suggestions with cuisine type]
-        Accommodation: [Hotel/stay suggestion]
-
-        Continue this format for all {days} days. Be specific with timings, locations, and costs in INR.
+        Continue this format for all {days} days. Include return journey planning if needed.
+        Be specific with timings, locations, and costs in INR.
         """
 
         print(f"Generated prompt: {prompt[:200]}...")  # Debug logging
@@ -223,4 +225,96 @@ def chat_followup(request: dict):
 
     except Exception as e:
         print(f"Chat followup error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Schema for multi-destination request
+class MultiTripRequest(BaseModel):
+    source: str
+    destinations: list[str]
+    transportMode: str
+    budget: str
+    totalDays: str
+    startDate: str
+    endDate: str
+    interests: list[str]
+    foodPreference: str
+    accessibilityNeeds: list[str]
+
+@app.post("/routers/generate-multi-itinerary")
+def generate_multi_itinerary(trip: MultiTripRequest):
+    """
+    Generate multi-destination itinerary
+    """
+    try:
+        print(f"Received multi-trip data: {trip}")  # Debug logging
+
+        # Convert string values to integers where needed
+        days = int(trip.totalDays) if trip.totalDays else 7
+        budget = int(trip.budget) if trip.budget else 10000
+
+        # Create destinations string
+        destinations_str = " → ".join(trip.destinations)
+
+        prompt = f"""
+        Create a detailed {days}-day multi-destination travel itinerary.
+        Journey: {trip.source} → {destinations_str}
+        Mode of transport: {trip.transportMode}.
+        Total Budget: ₹{budget} INR.
+        Dates: {trip.startDate} to {trip.endDate}.
+        Interests: {', '.join(trip.interests) if trip.interests else 'general sightseeing'}.
+        Food preference: {trip.foodPreference}.
+        Accessibility needs: {', '.join(trip.accessibilityNeeds) if trip.accessibilityNeeds else 'None'}.
+
+        👉 Please provide ONLY the itinerary in this EXACT format (no extra text, introductions, or conclusions):
+
+        Day 1: {trip.source} to {trip.destinations[0] if trip.destinations else 'First Destination'}
+        Morning: [Travel and arrival activities with time and location]
+        Afternoon: [Activity with time and location]
+        Evening: [Activity with time and location]
+        Meals: [Restaurant suggestions with cuisine type]
+        Accommodation: [Hotel/stay suggestion]
+
+        Day 2: Exploring {trip.destinations[0] if trip.destinations else 'First Destination'}
+        Morning: [Activity with time and location]
+        Afternoon: [Activity with time and location]
+        Evening: [Activity with time and location]
+        Meals: [Restaurant suggestions with cuisine type]
+        Accommodation: [Hotel/stay suggestion]
+
+        Continue this format for all {days} days, including travel days between destinations.
+        Distribute time appropriately across all destinations: {destinations_str}.
+        Include travel time and transportation details between cities.
+        Be specific with timings, locations, and costs in INR.
+        """
+
+        print(f"Generated prompt: {prompt[:200]}...")  # Debug logging
+
+        response = requests.post(
+            GEMINI_API_URL,
+            headers={"Content-Type": "application/json"},
+            json={"contents": [{"parts": [{"text": prompt}]}]},
+        )
+
+        print(f"Gemini API response status: {response.status_code}")  # Debug logging
+
+        if response.status_code != 200:
+            print(f"Gemini API error: {response.text}")  # Debug logging
+            raise HTTPException(status_code=500, detail=f"Gemini API failed: {response.text}")
+
+        data = response.json()
+        text = (
+            data.get("candidates", [{}])[0]
+            .get("content", {})
+            .get("parts", [{}])[0]
+            .get("text", "No response.")
+        )
+
+        print(f"Generated multi-itinerary length: {len(text)}")  # Debug logging
+        return {"itinerary": text}
+
+    except ValueError as e:
+        print(f"Value error: {e}")  # Debug logging
+        raise HTTPException(status_code=400, detail=f"Invalid input data: {str(e)}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")  # Debug logging
         raise HTTPException(status_code=500, detail=str(e))

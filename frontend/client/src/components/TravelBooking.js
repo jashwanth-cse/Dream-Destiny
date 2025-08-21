@@ -5,13 +5,14 @@ import { auth } from "../firebase";   // ✅ make sure path is correct
 import "./TravelBooking.css";
 
 function TravelBooking() {
-  // Load form data from localStorage or use defaults
+  // Load form data from sessionStorage or use defaults
   const loadFormData = () => {
-    const saved = localStorage.getItem('travelBookingForm');
+    const saved = sessionStorage.getItem('travelBookingForm');
     if (saved) {
       return JSON.parse(saved);
     }
     return {
+      source: "",
       destination: "",
       transportMode: "Flight",
       budget: "",
@@ -35,6 +36,7 @@ function TravelBooking() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [activeField, setActiveField] = useState(''); // Track which field is being autocompleted
 
   // Itinerary generation state
   const [isGeneratingItinerary, setIsGeneratingItinerary] = useState(false);
@@ -115,10 +117,11 @@ function TravelBooking() {
   // Debounced version of fetchPlaceSuggestions
   const debouncedFetchPlaces = debounce(fetchPlaceSuggestions, 300);
 
-  // Handle destination input change with autocomplete
-  const handleDestinationChange = (e) => {
+  // Handle location input change with autocomplete (works for both source and destination)
+  const handleLocationChange = (e, fieldName) => {
     const value = e.target.value;
-    setFormData({ ...formData, destination: value });
+    setFormData({ ...formData, [fieldName]: value });
+    setActiveField(fieldName);
 
     if (value.trim()) {
       debouncedFetchPlaces(value);
@@ -130,9 +133,10 @@ function TravelBooking() {
 
   // Handle suggestion selection
   const handleSuggestionSelect = (suggestion) => {
-    setFormData({ ...formData, destination: suggestion.description });
+    setFormData({ ...formData, [activeField]: suggestion.description });
     setShowSuggestions(false);
     setSuggestions([]);
+    setActiveField('');
   };
 
   // Hide suggestions when clicking outside
@@ -145,10 +149,17 @@ function TravelBooking() {
 
 
 
-  // Save form data to localStorage whenever it changes
+  // Save form data to sessionStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('travelBookingForm', JSON.stringify(formData));
+    sessionStorage.setItem('travelBookingForm', JSON.stringify(formData));
   }, [formData]);
+
+  // Clear session data function
+  const clearSessionData = () => {
+    sessionStorage.removeItem('travelBookingForm');
+    sessionStorage.removeItem('currentItinerary');
+    setFormData(loadFormData()); // Reset to defaults
+  };
 
   // ✅ Check if user is signed in
   useEffect(() => {
@@ -212,6 +223,7 @@ const handleSubmit = async (e) => {
 
   // Validate required fields
   const requiredFields = [
+    { field: 'source', label: 'Source Location' },
     { field: 'destination', label: 'Travel Destination' },
     { field: 'budget', label: 'Budget' },
     { field: 'startDate', label: 'Start Date' },
@@ -267,23 +279,25 @@ const handleSubmit = async (e) => {
     const data = await response.json();
     if (data.itinerary) {
       const tripDetails = {
+        source: formData.source,
         destination: formData.destination,
         days: formData.days,
         budget: formData.budget,
         transportMode: formData.transportMode,
         foodPreference: formData.foodPreference,
         startDate: formData.startDate,
-        endDate: formData.endDate
+        endDate: formData.endDate,
+        journeyType: 'single'
       };
 
-      // Save to localStorage for persistence
+      // Save to sessionStorage for session persistence
       const itineraryData = {
         currentItinerary: data.itinerary,
         originalItinerary: data.itinerary,
         tripDetails: tripDetails,
         timestamp: new Date().toISOString()
       };
-      localStorage.setItem('currentItinerary', JSON.stringify(itineraryData));
+      sessionStorage.setItem('currentItinerary', JSON.stringify(itineraryData));
 
       // Navigate to itinerary display page with data
       navigate("/itinerary", {
@@ -332,7 +346,7 @@ const handleSubmit = async (e) => {
         <form onSubmit={handleSubmit} className="booking-form">
           {/* Transport Mode Selection */}
           <div className="transport-tabs">
-            {["Flight", "Train", "Car Rental", "Bus", "Own Vehicle"].map(
+            {["Flight", "Train", "Car Rental", "Bus", "Own Vehicle", "Mixed"].map(
               (mode) => (
                 <button
                   key={mode}
@@ -350,11 +364,59 @@ const handleSubmit = async (e) => {
                     {mode === "Car Rental" && "🚗"}
                     {mode === "Bus" && "🚌"}
                     {mode === "Own Vehicle" && "🚙"}
+                    {mode === "Mixed" && "🚁"}
                   </div>
                   <span>{mode}</span>
                 </button>
               )
             )}
+          </div>
+
+          {/* Source Location */}
+          <div className="form-section">
+            <label>Source Location</label>
+            <div className="autocomplete-container">
+              <input
+                type="text"
+                name="source"
+                placeholder="Start typing your starting location..."
+                value={formData.source}
+                onChange={(e) => handleLocationChange(e, 'source')}
+                onBlur={handleDestinationBlur}
+                onFocus={() => {
+                  setActiveField('source');
+                  formData.source && debouncedFetchPlaces(formData.source);
+                }}
+                className="destination-input"
+                autoComplete="off"
+              />
+
+              {/* Autocomplete Suggestions for Source */}
+              {showSuggestions && (
+                <div className="suggestions-dropdown">
+                  {isLoadingSuggestions ? (
+                    <div className="suggestion-item loading">
+                      <span>🔍 Searching places...</span>
+                    </div>
+                  ) : suggestions.length > 0 ? (
+                    suggestions.map((suggestion, index) => (
+                      <div
+                        key={suggestion.place_id || index}
+                        className="suggestion-item"
+                        onClick={() => handleSuggestionSelect(suggestion)}
+                      >
+                        <div className="suggestion-main">{suggestion.main_text}</div>
+                        <div className="suggestion-secondary">{suggestion.secondary_text}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="suggestion-item no-results">
+                      <span>No places found</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Travel Destination */}
@@ -366,9 +428,12 @@ const handleSubmit = async (e) => {
                 name="destination"
                 placeholder="Start typing a destination..."
                 value={formData.destination}
-                onChange={handleDestinationChange}
+                onChange={(e) => handleLocationChange(e, 'destination')}
                 onBlur={handleDestinationBlur}
-                onFocus={() => formData.destination && debouncedFetchPlaces(formData.destination)}
+                onFocus={() => {
+                  setActiveField('destination');
+                  formData.destination && debouncedFetchPlaces(formData.destination);
+                }}
                 className="destination-input"
                 autoComplete="off"
               />
@@ -416,6 +481,7 @@ const handleSubmit = async (e) => {
                 <option value="Car Rental">Car Rental</option>
                 <option value="Bus">Bus</option>
                 <option value="Own Vehicle">Own Vehicle</option>
+                <option value="Mixed">Mixed Transport</option>
               </select>
             </div>
 
@@ -473,9 +539,9 @@ const handleSubmit = async (e) => {
 
           {/* Interests */}
           <div className="form-section">
-            <label>Interests</label>
+            <label>Interests (Optional)</label>
             <div className="checkbox-group">
-              {["Adventure", "Culture", "Relaxation"].map((interest) => (
+              {["Adventure", "Culture", "Food", "History", "Nature", "Shopping", "Nightlife", "Art", "Photography", "Architecture", "Museums", "Beaches", "Mountains", "Wildlife", "Spiritual", "Sports", "Music", "Festivals", "Relaxation"].map((interest) => (
                 <label key={interest} className="checkbox-label">
                   <input
                     type="checkbox"
@@ -511,12 +577,16 @@ const handleSubmit = async (e) => {
 
           {/* Accessibility Needs */}
           <div className="form-section">
-            <label>Accessibility Needs</label>
+            <label>Accessibility Needs (Optional)</label>
             <div className="checkbox-group">
               {[
+                "Wheelchair Access",
+                "Visual Assistance",
+                "Hearing Assistance",
+                "Mobility Support",
                 "Differently-abled accommodation",
                 "Senior citizens",
-                "Children under 3 years",
+                "Children below 3 years",
               ].map((need) => (
                 <label key={need} className="checkbox-label">
                   <input
@@ -531,17 +601,28 @@ const handleSubmit = async (e) => {
             </div>
           </div>
 
-          {/* Submit Button */}
-          <button type="submit" className="submit-btn" disabled={isGeneratingItinerary}>
-            {isGeneratingItinerary ? (
-              <>
-                <span className="loading-spinner"></span>
-                Generating Itinerary...
-              </>
-            ) : (
-              "Destine My Trip"
-            )}
-          </button>
+          {/* Action Buttons */}
+          <div className="form-actions">
+            <button
+              type="button"
+              className="clear-btn"
+              onClick={clearSessionData}
+              title="Clear all form data"
+            >
+              🗑️ Clear Form
+            </button>
+
+            <button type="submit" className="submit-btn" disabled={isGeneratingItinerary}>
+              {isGeneratingItinerary ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  Generating Itinerary...
+                </>
+              ) : (
+                "Destine My Trip"
+              )}
+            </button>
+          </div>
         </form>
       </div>
 

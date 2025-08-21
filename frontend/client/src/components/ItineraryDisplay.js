@@ -10,9 +10,9 @@ function ItineraryDisplay() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Load itinerary data from localStorage or navigation state
+  // Load itinerary data from sessionStorage or navigation state
   const loadItineraryData = () => {
-    const savedData = localStorage.getItem('currentItinerary');
+    const savedData = sessionStorage.getItem('currentItinerary');
     if (savedData) {
       const parsed = JSON.parse(savedData);
       return {
@@ -52,7 +52,7 @@ function ItineraryDisplay() {
   // API base URL from environment variables
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000';
 
-  // Save itinerary data to localStorage whenever it changes
+  // Save itinerary data to sessionStorage whenever it changes
   useEffect(() => {
     if (currentItinerary && originalItinerary) {
       const dataToSave = {
@@ -61,7 +61,7 @@ function ItineraryDisplay() {
         tripDetails,
         timestamp: new Date().toISOString()
       };
-      localStorage.setItem('currentItinerary', JSON.stringify(dataToSave));
+      sessionStorage.setItem('currentItinerary', JSON.stringify(dataToSave));
     }
   }, [currentItinerary, originalItinerary, tripDetails]);
 
@@ -83,7 +83,7 @@ function ItineraryDisplay() {
   useEffect(() => {
     if (!loading && !currentItinerary) {
       // Clear any stale data and redirect
-      localStorage.removeItem('currentItinerary');
+      sessionStorage.removeItem('currentItinerary');
       navigate("/travel-booking");
     }
   }, [loading, currentItinerary, navigate]);
@@ -105,7 +105,7 @@ function ItineraryDisplay() {
   const handleLogout = async () => {
     try {
       // Clear saved itinerary data on logout
-      localStorage.removeItem('currentItinerary');
+      sessionStorage.removeItem('currentItinerary');
       await signOut(auth);
       navigate("/login");
     } catch (error) {
@@ -115,7 +115,7 @@ function ItineraryDisplay() {
 
   // Handle back to booking (clear saved data for new trip)
   const handleBackToBooking = () => {
-    localStorage.removeItem('currentItinerary');
+    sessionStorage.removeItem('currentItinerary');
     navigate("/travel-booking");
   };
 

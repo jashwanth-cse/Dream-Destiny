@@ -4,6 +4,7 @@ import HomePage from "./components/HomePage";
 import Login from "./components/Login";
 import Signup from "./components/SignUp";
 import TravelBooking from "./components/TravelBooking";
+import MultiDestination from "./components/MultiDestination";
 import ItineraryDisplay from "./components/ItineraryDisplay";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -21,6 +22,16 @@ function App() {
           element={
             <ProtectedRoute>
               <TravelBooking />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Protect multi-destination */}
+        <Route
+          path="/multi-destination"
+          element={
+            <ProtectedRoute>
+              <MultiDestination />
             </ProtectedRoute>
           }
         />

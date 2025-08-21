@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
+import LoadingSpinner from "./LoadingSpinner";
+import PageTransition from "./PageTransition";
+import LoadingButton from "./LoadingButton";
+import useButtonLoading from "../hooks/useButtonLoading";
 import "./Auth.css";
 
 function Login() {
@@ -9,7 +13,30 @@ function Login() {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const navigate = useNavigate();
+
+  // Button loading states
+  const {
+    isButtonLoading,
+    executeWithLoading
+  } = useButtonLoading();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsLoading(true);
+        setLoadingMessage("Welcome back! Redirecting to home...");
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
 
   // Convert Firebase error codes to user-friendly messages
   const getErrorMessage = (errorCode) => {
@@ -39,6 +66,12 @@ function Login() {
     setShowModal(true);
   };
 
+  // Show message function
+  const showMessage = (message) => {
+    setModalMessage(message);
+    setShowModal(true);
+  };
+
   // Close modal
   const closeModal = () => {
     setShowModal(false);
@@ -46,15 +79,7 @@ function Login() {
     setError("");
   };
 
-  // ✅ Redirect if already logged in
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        navigate("/"); // or "/home"
-      }
-    });
-    return () => unsubscribe();
-  }, [navigate]);
+  // Remove duplicate useEffect - already handled above
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -62,34 +87,81 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
+
+    await executeWithLoading('emailLogin', async () => {
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
       console.log("Login successful ✅");
-      navigate("/travel-booking");
-    } catch (err) {
-      console.error("Login error:", err);
-      showErrorModal(err.code);
-    }
+
+      setIsLoading(true);
+      setLoadingMessage("Login successful! Redirecting to home...");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+    }, 'Signing in...');
   };
 
   const handleGoogleLogin = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-      console.log("Google login successful ✅");
-      navigate("/travel-booking");
-    } catch (err) {
-      console.error("Google login error:", err);
-      showErrorModal(err.code);
-    }
+    await executeWithLoading('googleLogin', async () => {
+      console.log("🔍 Starting Google login process...");
+      const result = await signInWithPopup(auth, googleProvider);
+
+      // Debug logging
+      console.log("📊 Google login result:", result);
+      console.log("🎫 Token response:", result._tokenResponse);
+      console.log("👤 User info:", result.user);
+      console.log("🆕 Is new user:", result._tokenResponse?.isNewUser);
+      console.log("📧 User email:", result.user?.email);
+      console.log("✅ User verified:", result.user?.emailVerified);
+
+      // Check if this is a new user (should redirect to signup instead)
+      const isNewUser = result._tokenResponse?.isNewUser;
+
+      if (isNewUser === true) {
+        console.log("🚫 New user detected during login - this should redirect to signup");
+
+        // Sign out the user since they should signup first
+        console.log("🔄 Signing out new user...");
+        await auth.signOut();
+        console.log("✅ User signed out successfully");
+
+        // Add a small delay to ensure signOut completes
+        setTimeout(() => {
+          console.log("📢 Showing message to user");
+          showMessage("🚫 This Google account is not registered. Please sign up first to create an account, then come back to login.");
+
+          // Optionally redirect to signup after showing message
+          setTimeout(() => {
+            if (window.confirm("Would you like to go to the signup page now?")) {
+              console.log("🔄 Redirecting to signup page");
+              navigate("/signup");
+            }
+          }, 3000);
+        }, 500);
+        return;
+      }
+
+      console.log("✅ Google login successful for existing user!");
+      console.log("🏠 Proceeding with login and redirect to home");
+
+      setIsLoading(true);
+      setLoadingMessage("Google login successful! Redirecting to home...");
+
+      setTimeout(() => {
+        console.log("🔄 Navigating to home page");
+        navigate("/");
+      }, 2000);
+    }, 'Signing in with Google...');
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <div className="login-form">
-          <h1>Login</h1>
+    <PageTransition isLoading={isLoading} loadingMessage={loadingMessage}>
+      <div className="login-page">
+        <div className="login-container">
+          <div className="login-form">
+            <h1>Login</h1>
 
-          <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
             <input
               type="email"
               name="email"
@@ -106,14 +178,42 @@ function Login() {
               onChange={handleChange}
               required
             />
-            <button type="submit" className="login-btn">
+            <LoadingButton
+              type="submit"
+              className="login-btn"
+              isLoading={isButtonLoading('emailLogin')}
+              loadingText="Signing in..."
+              variant="primary"
+              size="medium"
+            >
               Login
-            </button>
+            </LoadingButton>
           </form>
 
-          <button className="google-btn" onClick={handleGoogleLogin}>
+          <LoadingButton
+            className="google-btn"
+            onClick={handleGoogleLogin}
+            isLoading={isButtonLoading('googleLogin')}
+            loadingText="Signing in with Google..."
+            variant="outline"
+            size="medium"
+          >
+            <span style={{
+              fontSize: '18px',
+              marginRight: '8px',
+              fontWeight: 'bold',
+              color: '#4285f4',
+              background: 'white',
+              borderRadius: '50%',
+              width: '20px',
+              height: '20px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid #dadce0'
+            }}>G</span>
             Sign in with Google
-          </button>
+          </LoadingButton>
 
           <p className="signup-link">
             Don’t have an account?{" "}
@@ -143,7 +243,8 @@ function Login() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </PageTransition>
   );
 }
 

@@ -185,9 +185,10 @@ select:focus {
 /* Checkbox and Radio Styles */
 .checkbox-group,
 .radio-group {
-  display: flex;
-  gap: 25px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 10px;
 }
 
 .checkbox-label,
@@ -345,8 +346,39 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(200, 200, 200, 0.3) !important;
 }
 
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  align-items: center;
+}
+
+/* Clear Button */
+.clear-btn {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.clear-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(244, 67, 54, 0.3);
+}
+
 /* Submit Button */
 .submit-btn {
+  flex: 1;
   background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
   color: white;
   border: none;
@@ -356,7 +388,6 @@ select:focus {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 20px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -806,5 +837,15 @@ select:focus {
 
   .submit-btn:hover::before {
     left: 10px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .clear-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
