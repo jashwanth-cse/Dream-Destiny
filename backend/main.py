@@ -31,6 +31,7 @@ GOOGLE_PLACES_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/jso
 class TripRequest(BaseModel):
     source: str
     destination: str
+    numberOfPersons: str
     transportMode: str
     budget: str  # Changed to str to handle frontend input
     days: str    # Changed to str to handle frontend input
@@ -51,8 +52,9 @@ def generate_itinerary(trip: TripRequest):
 
         prompt = f"""
         Create a detailed {days}-day travel itinerary from {trip.source} to {trip.destination}.
+        Number of travelers: {trip.numberOfPersons} person(s).
         Mode of transport: {trip.transportMode}.
-        Budget: ₹{budget} INR.
+        Budget: ₹{budget} INR (total for {trip.numberOfPersons} person(s)).
         Dates: {trip.startDate} to {trip.endDate}.
         Interests: {', '.join(trip.interests) if trip.interests else 'general sightseeing'}.
         Food preference: {trip.foodPreference}.
@@ -61,21 +63,22 @@ def generate_itinerary(trip: TripRequest):
         👉 Please provide ONLY the itinerary in this EXACT format (no extra text, introductions, or conclusions):
 
         Day 1: Departure from {trip.source} to {trip.destination}
-        Morning: [Travel arrangements and departure activities]
+        Morning: [Travel arrangements and departure activities for {trip.numberOfPersons} person(s)]
         Afternoon: [Arrival and initial activities in {trip.destination}]
         Evening: [Evening activities and settling in]
-        Meals: [Restaurant suggestions with cuisine type]
-        Accommodation: [Hotel/stay suggestion]
+        Meals: [Restaurant suggestions with cuisine type for {trip.numberOfPersons} person(s)]
+        Accommodation: [Hotel/stay suggestion for {trip.numberOfPersons} person(s)]
 
         Day 2: Exploring {trip.destination}
-        Morning: [Activity with time and location]
-        Afternoon: [Activity with time and location]
-        Evening: [Activity with time and location]
-        Meals: [Restaurant suggestions with cuisine type]
-        Accommodation: [Hotel/stay suggestion]
+        Morning: [Activity with time and location for {trip.numberOfPersons} person(s)]
+        Afternoon: [Activity with time and location for {trip.numberOfPersons} person(s)]
+        Evening: [Activity with time and location for {trip.numberOfPersons} person(s)]
+        Meals: [Restaurant suggestions with cuisine type for {trip.numberOfPersons} person(s)]
+        Accommodation: [Hotel/stay suggestion for {trip.numberOfPersons} person(s)]
 
         Continue this format for all {days} days. Include return journey planning if needed.
-        Be specific with timings, locations, and costs in INR.
+        Be specific with timings, locations, and costs in INR for {trip.numberOfPersons} person(s).
+        Consider group discounts and family-friendly options when applicable.
         """
 
         print(f"Generated prompt: {prompt[:200]}...")  # Debug logging
@@ -231,6 +234,7 @@ def chat_followup(request: dict):
 class MultiTripRequest(BaseModel):
     source: str
     destinations: list[str]
+    numberOfPersons: str
     transportMode: str
     budget: str
     totalDays: str
@@ -258,8 +262,9 @@ def generate_multi_itinerary(trip: MultiTripRequest):
         prompt = f"""
         Create a detailed {days}-day multi-destination travel itinerary.
         Journey: {trip.source} → {destinations_str}
+        Number of travelers: {trip.numberOfPersons} person(s).
         Mode of transport: {trip.transportMode}.
-        Total Budget: ₹{budget} INR.
+        Total Budget: ₹{budget} INR (total for {trip.numberOfPersons} person(s)).
         Dates: {trip.startDate} to {trip.endDate}.
         Interests: {', '.join(trip.interests) if trip.interests else 'general sightseeing'}.
         Food preference: {trip.foodPreference}.
@@ -268,23 +273,24 @@ def generate_multi_itinerary(trip: MultiTripRequest):
         👉 Please provide ONLY the itinerary in this EXACT format (no extra text, introductions, or conclusions):
 
         Day 1: {trip.source} to {trip.destinations[0] if trip.destinations else 'First Destination'}
-        Morning: [Travel and arrival activities with time and location]
-        Afternoon: [Activity with time and location]
-        Evening: [Activity with time and location]
-        Meals: [Restaurant suggestions with cuisine type]
-        Accommodation: [Hotel/stay suggestion]
+        Morning: [Travel and arrival activities with time and location for {trip.numberOfPersons} person(s)]
+        Afternoon: [Activity with time and location for {trip.numberOfPersons} person(s)]
+        Evening: [Activity with time and location for {trip.numberOfPersons} person(s)]
+        Meals: [Restaurant suggestions with cuisine type for {trip.numberOfPersons} person(s)]
+        Accommodation: [Hotel/stay suggestion for {trip.numberOfPersons} person(s)]
 
         Day 2: Exploring {trip.destinations[0] if trip.destinations else 'First Destination'}
-        Morning: [Activity with time and location]
-        Afternoon: [Activity with time and location]
-        Evening: [Activity with time and location]
-        Meals: [Restaurant suggestions with cuisine type]
-        Accommodation: [Hotel/stay suggestion]
+        Morning: [Activity with time and location for {trip.numberOfPersons} person(s)]
+        Afternoon: [Activity with time and location for {trip.numberOfPersons} person(s)]
+        Evening: [Activity with time and location for {trip.numberOfPersons} person(s)]
+        Meals: [Restaurant suggestions with cuisine type for {trip.numberOfPersons} person(s)]
+        Accommodation: [Hotel/stay suggestion for {trip.numberOfPersons} person(s)]
 
         Continue this format for all {days} days, including travel days between destinations.
         Distribute time appropriately across all destinations: {destinations_str}.
         Include travel time and transportation details between cities.
-        Be specific with timings, locations, and costs in INR.
+        Be specific with timings, locations, and costs in INR for {trip.numberOfPersons} person(s).
+        Consider group discounts and family-friendly options when applicable.
         """
 
         print(f"Generated prompt: {prompt[:200]}...")  # Debug logging

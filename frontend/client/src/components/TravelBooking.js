@@ -14,6 +14,7 @@ function TravelBooking() {
     return {
       source: "",
       destination: "",
+      numberOfPersons: "1",
       transportMode: "Flight",
       budget: "",
       days: "",
@@ -225,6 +226,7 @@ const handleSubmit = async (e) => {
   const requiredFields = [
     { field: 'source', label: 'Source Location' },
     { field: 'destination', label: 'Travel Destination' },
+    { field: 'numberOfPersons', label: 'Number of Persons' },
     { field: 'budget', label: 'Budget' },
     { field: 'startDate', label: 'Start Date' },
     { field: 'endDate', label: 'End Date' },
@@ -240,6 +242,11 @@ const handleSubmit = async (e) => {
   }
 
   // Additional validation
+  if (parseInt(formData.numberOfPersons) <= 0 || parseInt(formData.numberOfPersons) > 20) {
+    showMessage("Please enter a valid number of persons (1-20)", "error");
+    return;
+  }
+
   if (parseInt(formData.budget) <= 0) {
     showMessage("Please enter a valid budget amount greater than 0", "error");
     return;
@@ -281,6 +288,7 @@ const handleSubmit = async (e) => {
       const tripDetails = {
         source: formData.source,
         destination: formData.destination,
+        numberOfPersons: formData.numberOfPersons,
         days: formData.days,
         budget: formData.budget,
         transportMode: formData.transportMode,
@@ -421,7 +429,7 @@ const handleSubmit = async (e) => {
 
           {/* Travel Destination */}
           <div className="form-section">
-            <label>Travel Destination(s)</label>
+            <label>Travel Destination</label>
             <div className="autocomplete-container">
               <input
                 type="text"
@@ -463,6 +471,25 @@ const handleSubmit = async (e) => {
                   )}
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Number of Persons */}
+          <div className="form-section">
+            <label>Number of Persons *</label>
+            <input
+              type="number"
+              name="numberOfPersons"
+              placeholder="How many people are traveling?"
+              value={formData.numberOfPersons}
+              onChange={handleInputChange}
+              className="persons-input"
+              min="1"
+              max="20"
+              required
+            />
+            <div className="input-hint">
+              Enter the total number of travelers (including yourself)
             </div>
           </div>
 

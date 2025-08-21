@@ -178,6 +178,32 @@ select:focus {
   width: 100%;
 }
 
+.persons-input {
+  width: 100%;
+  padding: 15px 20px;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.persons-input:focus {
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Input Hint */
+.input-hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
 .transport-select {
   cursor: pointer;
 }

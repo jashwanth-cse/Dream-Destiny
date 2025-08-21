@@ -13,6 +13,7 @@ function MultiDestination() {
   const [formData, setFormData] = useState({
     source: "",
     destinations: [""], // Array of destinations
+    numberOfPersons: "1",
     transportMode: "Flight",
     budget: "",
     totalDays: "",
@@ -245,12 +246,17 @@ function MultiDestination() {
       return;
     }
 
-    if (!formData.budget || !formData.startDate || !formData.endDate || !formData.foodPreference) {
+    if (!formData.budget || !formData.startDate || !formData.endDate || !formData.foodPreference || !formData.numberOfPersons) {
       showMessage("Please fill in all required fields", "error");
       return;
     }
 
     // Additional validation
+    if (parseInt(formData.numberOfPersons) <= 0 || parseInt(formData.numberOfPersons) > 20) {
+      showMessage("Please enter a valid number of persons (1-20)", "error");
+      return;
+    }
+
     if (parseInt(formData.budget) <= 0) {
       showMessage("Please enter a valid budget amount greater than 0", "error");
       return;
@@ -297,6 +303,7 @@ function MultiDestination() {
         const tripDetails = {
           source: formData.source,
           destinations: validDestinations,
+          numberOfPersons: formData.numberOfPersons,
           totalDays: formData.totalDays,
           budget: formData.budget,
           transportMode: formData.transportMode,
@@ -475,6 +482,25 @@ function MultiDestination() {
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Number of Persons */}
+          <div className="form-section">
+            <label>Number of Persons *</label>
+            <input
+              type="number"
+              name="numberOfPersons"
+              placeholder="How many people are traveling?"
+              value={formData.numberOfPersons}
+              onChange={handleInputChange}
+              className="persons-input"
+              min="1"
+              max="20"
+              required
+            />
+            <div className="input-hint">
+              Enter the total number of travelers (including yourself)
             </div>
           </div>
 
