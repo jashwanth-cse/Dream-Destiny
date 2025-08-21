@@ -21,6 +21,11 @@ function Signup() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
+        // Clear any existing session data when switching accounts
+        sessionStorage.removeItem('travelBookingForm');
+        sessionStorage.removeItem('multiDestinationForm');
+        sessionStorage.removeItem('currentItinerary');
+
         setIsLoading(true);
         setLoadingMessage("You're already logged in! Redirecting to home...");
         setTimeout(() => {

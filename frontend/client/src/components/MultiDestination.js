@@ -9,20 +9,29 @@ function MultiDestination() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Load form data from sessionStorage or use defaults
+  const loadFormData = () => {
+    const saved = sessionStorage.getItem('multiDestinationForm');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return {
+      source: "",
+      destinations: [""], // Array of destinations
+      numberOfPersons: "1",
+      transportMode: "Flight",
+      budget: "",
+      totalDays: "",
+      startDate: "",
+      endDate: "",
+      interests: [],
+      foodPreference: "",
+      accessibilityNeeds: [],
+    };
+  };
+
   // Form data for multi-destination trip
-  const [formData, setFormData] = useState({
-    source: "",
-    destinations: [""], // Array of destinations
-    numberOfPersons: "1",
-    transportMode: "Flight",
-    budget: "",
-    totalDays: "",
-    startDate: "",
-    endDate: "",
-    interests: [],
-    foodPreference: "",
-    accessibilityNeeds: [],
-  });
+  const [formData, setFormData] = useState(loadFormData);
 
   // Autocomplete states
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -41,6 +50,18 @@ function MultiDestination() {
 
   // API base URL
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000';
+
+  // Save form data to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem('multiDestinationForm', JSON.stringify(formData));
+  }, [formData]);
+
+  // Clear session data function
+  const clearSessionData = () => {
+    sessionStorage.removeItem('multiDestinationForm');
+    sessionStorage.removeItem('currentItinerary');
+    setFormData(loadFormData()); // Reset to defaults
+  };
 
   // Check authentication
   useEffect(() => {
@@ -638,17 +659,28 @@ function MultiDestination() {
             </div>
           </div>
 
-          {/* Submit Button */}
-          <button type="submit" className="submit-btn" disabled={isGeneratingItinerary}>
-            {isGeneratingItinerary ? (
-              <>
-                <span className="loading-spinner"></span>
-                Generating Multi-City Itinerary...
-              </>
-            ) : (
-              "🗺️ Create Multi-Destination Journey"
-            )}
-          </button>
+          {/* Action Buttons */}
+          <div className="form-actions">
+            <button
+              type="button"
+              className="clear-btn"
+              onClick={clearSessionData}
+              title="Clear all form data"
+            >
+              🗑️ Clear Form
+            </button>
+
+            <button type="submit" className="submit-btn" disabled={isGeneratingItinerary}>
+              {isGeneratingItinerary ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  Generating Multi-City Itinerary...
+                </>
+              ) : (
+                "🗺️ Create Multi-Destination Journey"
+              )}
+            </button>
+          </div>
         </form>
       </div>
 

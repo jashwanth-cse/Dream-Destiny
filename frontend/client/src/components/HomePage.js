@@ -48,6 +48,12 @@ function HomePage() {
       setIsLoading(true);
       setLoadingMessage("Logging out... Redirecting to home...");
 
+      // Clear all session data before logout
+      sessionStorage.removeItem('travelBookingForm');
+      sessionStorage.removeItem('multiDestinationForm');
+      sessionStorage.removeItem('currentItinerary');
+      console.log("Session data cleared");
+
       await signOut(auth);
       console.log("User logged out");
 
