@@ -4,6 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 import os
+from dotenv import load_dotenv
+from services.amadeus_service import AmadeusService
+
+# Load environment variables
+load_dotenv()
 
 app = FastAPI()
 
@@ -16,12 +21,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Initialize Amadeus service
+amadeus_service = AmadeusService()
+
 # ✅ Store your API keys securely
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyBh9q8O9CUlQ2ey4RMzLzI8t7kFQxV9JMI")
-GEMINI_API_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-    f"?key={GEMINI_API_KEY}"
-)
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
 # Google Places API configuration
 GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "AIzaSyCgc7VyrFErOSwsPn08oc-SAz_Lf0HDORk")  # Use same key or different one
@@ -324,3 +329,178 @@ def generate_multi_itinerary(trip: MultiTripRequest):
     except Exception as e:
         print(f"Unexpected error: {e}")  # Debug logging
         raise HTTPException(status_code=500, detail=str(e))
+
+# ✅ New Amadeus Travel Data Endpoint
+@app.post("/api/travel-data")
+async def get_travel_data(trip: TripRequest):
+    """
+    Get comprehensive travel data using Amadeus APIs
+    Returns real-time flights, trains, hotels, and points of interest
+    """
+    try:
+        print(f"🔍 Fetching travel data for: {trip.source} → {trip.destination}")
+
+        # Get comprehensive travel data from Amadeus
+        travel_data = amadeus_service.get_comprehensive_travel_data(
+            source=trip.source,
+            destination=trip.destination,
+            start_date=trip.startDate,
+            end_date=trip.endDate,
+            transport_mode=trip.transportMode,
+            num_persons=int(trip.numberOfPersons),
+            interests=trip.interests if trip.interests else []
+        )
+
+        print(f"✅ Travel data fetched successfully")
+        print(f"📊 Transport options: {len(travel_data.get('transportOptions', []))}")
+        print(f"🏨 Hotels found: {len(travel_data.get('hotels', []))}")
+        print(f"📍 POIs found: {len(travel_data.get('pointsOfInterest', []))}")
+
+        return {
+            "success": True,
+            "data": travel_data,
+            "message": "Travel data fetched successfully"
+        }
+
+    except Exception as e:
+        print(f"❌ Error fetching travel data: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch travel data: {str(e)}")
+
+# ✅ Enhanced Itinerary Generation with Amadeus Data
+@app.post("/api/generate-itinerary-with-amadeus")
+async def generate_itinerary_with_amadeus(trip: TripRequest):
+    """
+    Generate itinerary using both Amadeus real-time data and Gemini AI
+    """
+    try:
+        print(f"🚀 Generating enhanced itinerary with Amadeus data")
+
+        # Step 1: Get real-time travel data from Amadeus
+        travel_data = amadeus_service.get_comprehensive_travel_data(
+            source=trip.source,
+            destination=trip.destination,
+            start_date=trip.startDate,
+            end_date=trip.endDate,
+            transport_mode=trip.transportMode,
+            num_persons=int(trip.numberOfPersons),
+            interests=trip.interests if trip.interests else []
+        )
+
+        # Step 2: Create enhanced prompt with real-time data
+        budget = int(trip.budget)
+        days = int(trip.days)
+
+        # Format transport options for prompt
+        transport_info = ""
+        if travel_data.get("transportOptions"):
+            transport_info = "\n".join([
+                f"- {opt['provider']}: {opt['departure']} → {opt['arrival']} ({opt['duration']}) - {opt['price']}"
+                for opt in travel_data["transportOptions"][:3]  # Top 3 options
+            ])
+
+        # Format hotel options for prompt
+        hotel_info = ""
+        if travel_data.get("hotels"):
+            hotel_info = "\n".join([
+                f"- {hotel['name']} ({hotel['location']}): {hotel['price']} - Rating: {hotel['rating']}/5"
+                for hotel in travel_data["hotels"][:3]  # Top 3 options
+            ])
+
+        # Format POI options for prompt
+        poi_info = ""
+        if travel_data.get("pointsOfInterest"):
+            poi_info = "\n".join([
+                f"- {poi['name']} ({poi['type']}): {', '.join(poi.get('tags', [])[:3])}"
+                for poi in travel_data["pointsOfInterest"][:5]  # Top 5 options
+            ])
+
+        enhanced_prompt = f"""
+        Create a detailed {days}-day travel itinerary from {trip.source} to {trip.destination}.
+        Number of travelers: {trip.numberOfPersons} person(s).
+        Mode of transport: {trip.transportMode}.
+        Budget: ₹{budget} INR (total for {trip.numberOfPersons} person(s)).
+        Dates: {trip.startDate} to {trip.endDate}.
+        Interests: {', '.join(trip.interests) if trip.interests else 'general sightseeing'}.
+        Food preference: {trip.foodPreference}.
+        Accessibility needs: {', '.join(trip.accessibilityNeeds) if trip.accessibilityNeeds else 'None'}.
+
+        🚄 AVAILABLE TRANSPORT OPTIONS:
+        {transport_info if transport_info else "Standard transport options available"}
+
+        🏨 RECOMMENDED HOTELS:
+        {hotel_info if hotel_info else "Various accommodation options available"}
+
+        📍 POINTS OF INTEREST:
+        {poi_info if poi_info else "Popular attractions and activities available"}
+
+        🛡️ TRAVEL RESTRICTIONS:
+        {travel_data.get('restrictions', 'No specific restrictions')}
+
+        👉 Please provide ONLY the itinerary in this EXACT format (no extra text, introductions, or conclusions):
+
+        Day 1: Departure from {trip.source} to {trip.destination}
+        Morning: [Travel arrangements using the recommended transport options above for {trip.numberOfPersons} person(s)]
+        Afternoon: [Arrival and initial activities in {trip.destination}]
+        Evening: [Evening activities and settling in]
+        Meals: [Restaurant suggestions with cuisine type for {trip.numberOfPersons} person(s)]
+        Accommodation: [Use one of the recommended hotels above for {trip.numberOfPersons} person(s)]
+
+        Day 2: Exploring {trip.destination}
+        Morning: [Activity from the points of interest above with time and location for {trip.numberOfPersons} person(s)]
+        Afternoon: [Activity from the points of interest above with time and location for {trip.numberOfPersons} person(s)]
+        Evening: [Activity from the points of interest above with time and location for {trip.numberOfPersons} person(s)]
+        Meals: [Restaurant suggestions with cuisine type for {trip.numberOfPersons} person(s)]
+        Accommodation: [Hotel/stay suggestion for {trip.numberOfPersons} person(s)]
+
+        Continue this format for all {days} days. Include return journey planning if needed.
+        Be specific with timings, locations, and costs in INR for {trip.numberOfPersons} person(s).
+        Use the real-time data provided above for accurate recommendations.
+        Consider group discounts and family-friendly options when applicable.
+        """
+
+        # Step 3: Generate itinerary with Gemini using enhanced prompt
+        headers = {
+            "Content-Type": "application/json",
+        }
+
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": enhanced_prompt
+                        }
+                    ]
+                }
+            ]
+        }
+
+        response = requests.post(
+            f"{GEMINI_API_URL}?key={GEMINI_API_KEY}",
+            headers=headers,
+            json=payload
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail=f"Gemini API error: {response.text}")
+
+        data = response.json()
+        itinerary_text = (
+            data.get("candidates", [{}])[0]
+            .get("content", {})
+            .get("parts", [{}])[0]
+            .get("text", "No response.")
+        )
+
+        print(f"✅ Enhanced itinerary generated successfully")
+
+        return {
+            "success": True,
+            "itinerary": itinerary_text,
+            "travelData": travel_data,
+            "message": "Enhanced itinerary generated with real-time data"
+        }
+
+    except Exception as e:
+        print(f"❌ Error generating enhanced itinerary: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate enhanced itinerary: {str(e)}")

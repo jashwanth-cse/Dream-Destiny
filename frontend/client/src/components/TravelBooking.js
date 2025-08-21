@@ -277,7 +277,15 @@ const handleSubmit = async (e) => {
   try {
     setIsGeneratingItinerary(true);
 
-    const response = await fetch(`${API_BASE_URL}/routers/generate-itinerary`, {
+    // Choose between regular and enhanced Amadeus-powered itinerary
+    const useAmadeusData = true; // Set to true to use real-time travel data
+    const endpoint = useAmadeusData
+      ? `${API_BASE_URL}/api/generate-itinerary-with-amadeus`
+      : `${API_BASE_URL}/routers/generate-itinerary`;
+
+    console.log(`🚀 Using ${useAmadeusData ? 'Amadeus-enhanced' : 'standard'} itinerary generation`);
+
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
