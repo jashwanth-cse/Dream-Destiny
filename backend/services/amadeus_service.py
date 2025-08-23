@@ -4,6 +4,7 @@ import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 import logging
+from .indian_rail_service import IndianRailService
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +17,10 @@ class AmadeusService:
         self.base_url = os.getenv('AMADEUS_BASE_URL', 'https://api.amadeus.com')
         self.access_token = None
         self.token_expires_at = None
-        
+
+        # Initialize Indian Rail service for accurate train data
+        self.indian_rail_service = IndianRailService()
+
         if not self.api_key or not self.api_secret:
             logger.warning("Amadeus API credentials not found. Using mock data.")
             self.use_mock_data = True
@@ -402,16 +406,36 @@ class AmadeusService:
 
     def search_trains(self, origin: str, destination: str, departure_date: str,
                      passengers: int = 1) -> Dict:
-        """Search for train options (using mock data as Amadeus doesn't have Indian trains)"""
-        params = {
-            'origin': origin,
-            'destination': destination,
-            'departureDate': departure_date,
-            'passengers': passengers
-        }
+        """Search for train options using Indian Rail API"""
+        try:
+            logger.info(f"🚄 Searching trains from {origin} to {destination} for {passengers} passengers")
 
-        # Always use mock data for trains as Amadeus doesn't cover Indian railways
-        return self._mock_train_data(params)
+            # Use Indian Rail service for accurate train data
+            train_data = self.indian_rail_service.format_for_amadeus_integration(
+                origin, destination, departure_date, passengers
+            )
+
+            if train_data.get("data"):
+                logger.info(f"✅ Found {len(train_data['data'])} trains using Indian Rail service")
+                return train_data
+            else:
+                logger.warning("⚠️ No trains found, using fallback data")
+                return self._mock_train_data({
+                    'origin': origin,
+                    'destination': destination,
+                    'departureDate': departure_date,
+                    'passengers': passengers
+                })
+
+        except Exception as e:
+            logger.error(f"❌ Error in train search: {e}")
+            # Fallback to mock data
+            return self._mock_train_data({
+                'origin': origin,
+                'destination': destination,
+                'departureDate': departure_date,
+                'passengers': passengers
+            })
 
     def search_hotels(self, city_code: str, check_in: str, check_out: str,
                      adults: int = 1, rooms: int = 1) -> Dict:
