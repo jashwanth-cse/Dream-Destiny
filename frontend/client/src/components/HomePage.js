@@ -97,6 +97,11 @@ function HomePage() {
     setShowJourneyModal(false);
   };
 
+  // ✅ Handle dashboard navigation
+  const handleDashboardClick = () => {
+    navigate("/dashboard");
+  };
+
   return (
     <PageTransition isLoading={isLoading} loadingMessage={loadingMessage}>
       <div className="homepage-container">
@@ -109,13 +114,14 @@ function HomePage() {
         
         <div className="navbar-menu">
           <span className="navbar-link">Trip Route Visualization</span>
-          <span className="navbar-link">Multi-Lap Journey</span>
+          <span onClick={handlePlanTripClick}  className="navbar-link">Multi-Lap Journey</span>
           <span className="navbar-link">Accessibility & Inclusion</span>
           <span className="navbar-link">Features</span>
           
           {/* ✅ Conditionally show user info */}
           {user ? (
             <div className="user-controls">
+<<<<<<< HEAD
               <span className="welcome-text">
                 Welcome, {user.displayName || user.email} 👋
               </span>
@@ -127,6 +133,12 @@ function HomePage() {
                 variant="danger"
                 size="medium"
               >
+=======
+              <button className="dashboard-btn" onClick={handleDashboardClick}>
+               {user.displayName || user.email} 👋
+              </button>
+              <button className="logout-btn" onClick={handleLogoutClick}>
+>>>>>>> f1d9a8c45cf4fa2b4d2d8765323971b2cb1d0d47
                 Logout
               </LoadingButton>
             </div>

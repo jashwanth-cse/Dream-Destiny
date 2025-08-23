@@ -160,6 +160,7 @@ function Login() {
   };
 
   return (
+<<<<<<< HEAD
     <PageTransition isLoading={isLoading} loadingMessage={loadingMessage}>
       <div className="login-page">
         <div className="login-container">
@@ -167,6 +168,14 @@ function Login() {
             <h1>Login</h1>
 
             <form onSubmit={handleSubmit}>
+=======
+    <div className="login-page">
+      <div className="login-container">
+        <div className="login-form">
+          <h1>Login</h1>
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          <form onSubmit={handleSubmit}>
+>>>>>>> f1d9a8c45cf4fa2b4d2d8765323971b2cb1d0d47
             <input
               type="email"
               name="email"
@@ -178,11 +187,12 @@ function Login() {
             <input
               type="password"
               name="password"
-              placeholder="Password"
+              placeholder="Password"  
               value={formData.password}
               onChange={handleChange}
               required
             />
+<<<<<<< HEAD
             <LoadingButton
               type="submit"
               className="login-btn"
@@ -191,6 +201,10 @@ function Login() {
               variant="primary"
               size="medium"
             >
+=======
+            <div className="forgot-password">Forgot Password?</div>
+            <button type="submit" className="login-btn">
+>>>>>>> f1d9a8c45cf4fa2b4d2d8765323971b2cb1d0d47
               Login
             </LoadingButton>
           </form>

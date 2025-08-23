@@ -525,7 +525,7 @@ const handleSubmit = async (e) => {
               <input
                 type="number"
                 name="budget"
-                placeholder="$ 2000"
+                placeholder="₹ 2000"
                 value={formData.budget}
                 onChange={handleInputChange}
                 className="budget-input"
