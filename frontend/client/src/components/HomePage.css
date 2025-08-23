@@ -7,7 +7,8 @@
 }
 /* Common button base style */
 .navbar-button,
-.logout-btn {
+.logout-btn,
+.dashboard-btn {
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
@@ -59,6 +60,26 @@
 
 .logout-btn:active {
   background-color: #b02a30;
+  transform: scale(0.95);
+}
+
+/* Dashboard button */
+.dashboard-btn {
+  background-color: #52c41a; /* green */
+  color: white;
+  margin-right: 12px;
+  border-radius: 20px;
+  padding: 10px 16px;
+  font-size: 15px;
+}
+
+.dashboard-btn:hover {
+  background-color: #389e0d; /* darker green */
+  transform: scale(1.05);
+}
+
+.dashboard-btn:active {
+  background-color: #237804;
   transform: scale(0.95);
 }
 

@@ -4,6 +4,7 @@ import HomePage from "./components/HomePage";
 import Login from "./components/Login";
 import Signup from "./components/SignUp";
 import TravelBooking from "./components/TravelBooking";
+import UserDashboard from "./components/UserDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -13,6 +14,24 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        
+        {/* User Dashboard - Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/:section"
+          element={
+            <ProtectedRoute>
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
         
         {/* Protect travel-booking */}
         <Route

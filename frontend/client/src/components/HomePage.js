@@ -37,6 +37,11 @@ function HomePage() {
     navigate("/travel-booking");
   };
 
+  // ✅ Handle dashboard navigation
+  const handleDashboardClick = () => {
+    navigate("/dashboard");
+  };
+
   return (
     <div className="homepage-container">
       {/* Navigation Bar */}
@@ -48,16 +53,16 @@ function HomePage() {
         
         <div className="navbar-menu">
           <span className="navbar-link">Trip Route Visualization</span>
-          <span className="navbar-link">Multi-Lap Journey</span>
+          <span onClick={handlePlanTripClick}  className="navbar-link">Multi-Lap Journey</span>
           <span className="navbar-link">Accessibility & Inclusion</span>
           <span className="navbar-link">Features</span>
           
           {/* ✅ Conditionally show user info */}
           {user ? (
             <div className="user-controls">
-              <span className="welcome-text">
-                Welcome, {user.displayName || user.email} 👋
-              </span>
+              <button className="dashboard-btn" onClick={handleDashboardClick}>
+               {user.displayName || user.email} 👋
+              </button>
               <button className="logout-btn" onClick={handleLogoutClick}>
                 Logout
               </button>

@@ -50,7 +50,6 @@ function Login() {
         <div className="login-form">
           <h1>Login</h1>
           {error && <p style={{ color: "red" }}>{error}</p>}
-
           <form onSubmit={handleSubmit}>
             <input
               type="email"
@@ -63,11 +62,12 @@ function Login() {
             <input
               type="password"
               name="password"
-              placeholder="Password"
+              placeholder="Password"  
               value={formData.password}
               onChange={handleChange}
               required
             />
+            <div className="forgot-password">Forgot Password?</div>
             <button type="submit" className="login-btn">
               Login
             </button>
