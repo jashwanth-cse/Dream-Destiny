@@ -6,7 +6,7 @@ import "./MultiDestination.css";
 
 function MultiDestination() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+
   const [loading, setLoading] = useState(true);
 
   // Load form data from sessionStorage or use defaults
@@ -68,8 +68,6 @@ function MultiDestination() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (!currentUser) {
         navigate("/login");
-      } else {
-        setUser(currentUser);
       }
       setLoading(false);
     });

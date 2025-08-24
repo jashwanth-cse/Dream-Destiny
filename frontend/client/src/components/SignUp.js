@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
-import LoadingSpinner from "./LoadingSpinner";
+
 import PageTransition from "./PageTransition";
 import "./Auth.css";
 
 function Signup() {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
+
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -73,7 +73,6 @@ function Signup() {
   const closeModal = () => {
     setShowModal(false);
     setModalMessage("");
-    setError("");
   };
 
   // ✅ Redirect if already logged in
@@ -93,7 +92,6 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsEmailLoading(true);
-    setError("");
 
     try {
       await createUserWithEmailAndPassword(auth, formData.email, formData.password);
@@ -114,7 +112,6 @@ function Signup() {
 
   const handleGoogleSignup = async () => {
     setIsGoogleLoading(true);
-    setError("");
 
     try {
       const result = await signInWithPopup(auth, googleProvider);

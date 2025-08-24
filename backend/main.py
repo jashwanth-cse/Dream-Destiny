@@ -35,16 +35,19 @@ GOOGLE_PLACES_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/jso
 # Schema for incoming request
 class TripRequest(BaseModel):
     source: str
-    destination: str
+    destination: str = None  # Optional for multi-destination trips
+    destinations: list[str] = None  # For multi-destination trips
     numberOfPersons: str
     transportMode: str
     budget: str  # Changed to str to handle frontend input
-    days: str    # Changed to str to handle frontend input
+    days: str = None    # Changed to str to handle frontend input
+    totalDays: str = None  # For multi-destination trips
     startDate: str
     endDate: str
-    interests: list[str]
+    interests: list[str] = []
     foodPreference: str
-    accessibilityNeeds: list[str]
+    accessibilityNeeds: list[str] = []
+    journeyType: str = "single"  # "single" or "multi"
 
 @app.post("/routers/generate-itinerary")
 def generate_itinerary(trip: TripRequest):
@@ -374,11 +377,25 @@ async def generate_itinerary_with_amadeus(trip: TripRequest):
     """
     try:
         print(f"🚀 Generating enhanced itinerary with Amadeus data")
+        print(f"📊 Journey type: {trip.journeyType}")
+
+        # Handle multi-destination vs single destination
+        if trip.journeyType == "multi" and trip.destinations:
+            print(f"🗺️ Multi-destination trip: {trip.source} → {' → '.join(trip.destinations)}")
+            destinations = trip.destinations
+            days = int(trip.totalDays) if trip.totalDays else int(trip.days) if trip.days else 7
+        else:
+            print(f"🎯 Single destination trip: {trip.source} → {trip.destination}")
+            destinations = [trip.destination] if trip.destination else []
+            days = int(trip.days) if trip.days else int(trip.totalDays) if trip.totalDays else 3
 
         # Step 1: Get real-time travel data from Amadeus
+        # For multi-destination, get data for the first destination
+        primary_destination = destinations[0] if destinations else trip.destination
+
         travel_data = amadeus_service.get_comprehensive_travel_data(
             source=trip.source,
-            destination=trip.destination,
+            destination=primary_destination,
             start_date=trip.startDate,
             end_date=trip.endDate,
             transport_mode=trip.transportMode,
@@ -388,7 +405,6 @@ async def generate_itinerary_with_amadeus(trip: TripRequest):
 
         # Step 2: Create enhanced prompt with real-time data
         budget = int(trip.budget)
-        days = int(trip.days)
 
         # Format transport options for prompt
         transport_info = ""
@@ -414,8 +430,17 @@ async def generate_itinerary_with_amadeus(trip: TripRequest):
                 for poi in travel_data["pointsOfInterest"][:5]  # Top 5 options
             ])
 
+        # Create destination string for prompt
+        if trip.journeyType == "multi" and destinations:
+            destination_str = f"multiple destinations: {trip.source} → {' → '.join(destinations)}"
+            journey_description = f"multi-destination journey covering {len(destinations)} cities"
+        else:
+            destination_str = f"{trip.source} to {primary_destination}"
+            journey_description = "single destination trip"
+
         enhanced_prompt = f"""
-        Create a detailed {days}-day travel itinerary from {trip.source} to {trip.destination}.
+        Create a detailed {days}-day travel itinerary for a {journey_description}.
+        Route: {destination_str}
         Number of travelers: {trip.numberOfPersons} person(s).
         Mode of transport: {trip.transportMode}.
         Budget: ₹{budget} INR (total for {trip.numberOfPersons} person(s)).

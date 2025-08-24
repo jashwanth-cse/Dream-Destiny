@@ -149,26 +149,55 @@
   font-size: 0.875rem;
 }
 
-.upload-btn {
+.photo-actions {
+  display: flex;
+  gap: 8px;
   margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.upload-btn {
   padding: 0.5rem 1rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #3b82f6;
+  border: none;
   border-radius: 0.5rem;
-  color: #475569;
+  color: white;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  flex: 1;
+  min-width: 100px;
+}
+
+.upload-btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.upload-btn:disabled {
+  background: #9ca3af;
+  color: #e5e7eb;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.delete-photo-btn {
+  padding: 0.5rem 0.75rem;
+  background: #ef4444;
+  border: none;
+  border-radius: 0.5rem;
+  color: white;
   cursor: pointer;
   font-size: 0.875rem;
   transition: all 0.2s;
 }
 
-.upload-btn:hover:not(:disabled) {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
+.delete-photo-btn:hover:not(:disabled) {
+  background: #dc2626;
 }
 
-.upload-btn:disabled {
-  background: #e2e8f0;
-  color: #94a3b8;
+.delete-photo-btn:disabled {
+  background: #9ca3af;
+  color: #e5e7eb;
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -554,4 +583,5 @@
     white-space: nowrap;
     min-width: fit-content;
   }
+
 }

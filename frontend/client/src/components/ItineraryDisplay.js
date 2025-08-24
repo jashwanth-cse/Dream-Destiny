@@ -7,7 +7,6 @@ import "./ItineraryDisplay.css";
 function ItineraryDisplay() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
   // Load itinerary data from sessionStorage or navigation state
@@ -31,8 +30,8 @@ function ItineraryDisplay() {
 
   const itineraryData = loadItineraryData();
   const [currentItinerary, setCurrentItinerary] = useState(itineraryData.currentItinerary);
-  const [originalItinerary, setOriginalItinerary] = useState(itineraryData.originalItinerary);
-  const [tripDetails, setTripDetails] = useState(itineraryData.tripDetails);
+  const [originalItinerary] = useState(itineraryData.originalItinerary);
+  const [tripDetails] = useState(itineraryData.tripDetails);
 
   // Comparison functionality
   const [showComparison, setShowComparison] = useState(false);
@@ -70,8 +69,6 @@ function ItineraryDisplay() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (!currentUser) {
         navigate("/login");
-      } else {
-        setUser(currentUser);
       }
       setLoading(false);
     });

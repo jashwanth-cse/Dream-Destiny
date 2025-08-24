@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { auth, storage } from '../firebase';
 import { signOut, onAuthStateChanged, updateProfile } from 'firebase/auth';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -7,13 +7,14 @@ import './UserDashboard.css';
 
 function UserDashboard() {
   const navigate = useNavigate();
-  const location = useLocation();
+
   const { section } = useParams();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('account');
   const [whatsappSaved, setWhatsappSaved] = useState(false);
-  const [profileSaved, setProfileSaved] = useState(false);
+
+
   const [isEditing, setIsEditing] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -31,23 +32,22 @@ function UserDashboard() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        
+
         // Check if WhatsApp has been saved before for this user
         const savedWhatsappStatus = localStorage.getItem(`whatsapp_saved_${currentUser.uid}`);
         const savedWhatsappNumber = localStorage.getItem(`whatsapp_number_${currentUser.uid}`);
-        
+
         // Check if profile has been saved before
         const savedProfileStatus = localStorage.getItem(`profile_saved_${currentUser.uid}`);
-        
+
         if (savedWhatsappStatus === 'true') {
           setWhatsappSaved(true);
         }
-        
+
         if (savedProfileStatus === 'true') {
-          setProfileSaved(true);
           setIsEditing(false);
         }
-        
+
         setProfileData({
           username: currentUser.displayName || '',
           firstName: currentUser.displayName?.split(' ')[0] || '',
@@ -104,28 +104,23 @@ function UserDashboard() {
       await updateProfile(auth.currentUser, {
         displayName: profileData.displayName || profileData.firstName + ' ' + profileData.lastName
       });
-      
+
       // If WhatsApp number is provided and not empty, save it and mark as saved
       if (profileData.whatsapp && profileData.whatsapp.trim() !== '') {
         localStorage.setItem(`whatsapp_saved_${auth.currentUser.uid}`, 'true');
         localStorage.setItem(`whatsapp_number_${auth.currentUser.uid}`, profileData.whatsapp);
         setWhatsappSaved(true);
       }
-      
+
       // Mark profile as saved
       localStorage.setItem(`profile_saved_${auth.currentUser.uid}`, 'true');
-      setProfileSaved(true);
       setIsEditing(false);
-      
+
       alert('Profile updated successfully!');
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Error updating profile. Please try again.');
     }
-  };
-
-  const handleEditProfile = () => {
-    setIsEditing(true);
   };
 
   const handleFileUpload = async (event) => {
@@ -146,26 +141,26 @@ function UserDashboard() {
 
     try {
       setUploading(true);
-      
+
       // Create a reference to the file in Firebase Storage
       const storageRef = ref(storage, `profile-photos/${auth.currentUser.uid}/${file.name}`);
-      
+
       // Upload the file
       const snapshot = await uploadBytes(storageRef, file);
-      
+
       // Get the download URL
       const downloadURL = await getDownloadURL(snapshot.ref);
-      
+
       // Update user profile with new photo URL
       await updateProfile(auth.currentUser, {
         photoURL: downloadURL
       });
-      
+
       // Update local user state to reflect the change immediately
       setUser({ ...auth.currentUser, photoURL: downloadURL });
-      
+
       alert('Profile photo uploaded successfully!');
-      
+
     } catch (error) {
       console.error('Error uploading file:', error);
       alert('Error uploading photo. Please try again.');
@@ -173,6 +168,12 @@ function UserDashboard() {
       setUploading(false);
     }
   };
+
+  const handleEditProfile = () => {
+    setIsEditing(true);
+  };
+
+  // Use the new handlePhotoUpload method instead
 
   const triggerFileInput = () => {
     document.getElementById('fileInput').click();
@@ -428,8 +429,8 @@ function UserDashboard() {
               <h3>{user.displayName || user.email.split('@')[0]}</h3>
               <p>{user.email}</p>
             </div>
-            <button 
-              className="upload-btn" 
+            <button
+              className="upload-btn"
               onClick={triggerFileInput}
               disabled={uploading}
             >

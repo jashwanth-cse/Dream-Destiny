@@ -550,7 +550,10 @@
   display: flex;
   justify-content: flex-end;
   gap: 15px;
+  flex-wrap: wrap;
 }
+
+
 
 .modal-btn {
   border: none;

@@ -4,6 +4,8 @@ import HomePage from "./components/HomePage";
 import Login from "./components/Login";
 import Signup from "./components/SignUp";
 import TravelBooking from "./components/TravelBooking";
+import MultiDestination from "./components/MultiDestination";
+import ItineraryDisplay from "./components/ItineraryDisplay";
 import UserDashboard from "./components/UserDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 

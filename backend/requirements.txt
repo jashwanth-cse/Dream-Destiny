@@ -1,8 +1,26 @@
-fastapi
-uvicorn
-sqlalchemy
-pydantic
-python-dotenv
-passlib[bcrypt]
-python-jose[cryptography]
-requests
+# =============================================================================
+# DREAM DESTINY BACKEND - PYTHON DEPENDENCIES
+# =============================================================================
+# Install with: pip install -r requirements.txt
+# =============================================================================
+
+# Core Framework
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+
+# Database & ORM
+sqlalchemy>=2.0.23
+pydantic>=2.5.0
+
+# Environment & Configuration
+python-dotenv>=1.0.0
+
+# Authentication & Security
+passlib[bcrypt]>=1.7.4
+python-jose[cryptography]>=3.3.0
+
+# HTTP Requests & API Integration
+requests>=2.31.0
+
+# Additional utilities
+python-multipart>=0.0.6
