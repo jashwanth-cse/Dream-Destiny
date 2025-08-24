@@ -4,12 +4,7 @@ import HomePage from "./components/HomePage";
 import Login from "./components/Login";
 import Signup from "./components/SignUp";
 import TravelBooking from "./components/TravelBooking";
-<<<<<<< HEAD
-import MultiDestination from "./components/MultiDestination";
-import ItineraryDisplay from "./components/ItineraryDisplay";
-=======
 import UserDashboard from "./components/UserDashboard";
->>>>>>> f1d9a8c45cf4fa2b4d2d8765323971b2cb1d0d47
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
