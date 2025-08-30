@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../firebase';  // ✅ Import firebase auth
-import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { auth, storage } from '../firebase';  // ✅ Import firebase auth and storage
+import { signOut, onAuthStateChanged, updateProfile } from 'firebase/auth';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 import PageTransition from './PageTransition';
 import LoadingButton from './LoadingButton';
@@ -14,6 +15,18 @@ function HomePage() {
   const [showJourneyModal, setShowJourneyModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.user-profile') && !event.target.closest('.profile-dropdown')) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   // Button loading states
   const {
@@ -104,6 +117,41 @@ function HomePage() {
     navigate("/dashboard");
   };
 
+  // ✅ Handle profile image upload
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      // Show loading state
+      const tempUser = { ...user, photoURL: null };
+      setUser(tempUser);
+
+      // Create a reference to the storage location
+      const storageRef = ref(storage, `profile-images/${user.uid}/${file.name}`);
+      
+      // Upload the file
+      await uploadBytes(storageRef, file);
+      
+      // Get the download URL
+      const downloadURL = await getDownloadURL(storageRef);
+      
+      // Update user profile
+      await updateProfile(auth.currentUser, {
+        photoURL: downloadURL
+      });
+      
+      // Force a re-render by updating user state
+      setUser({ ...auth.currentUser });
+      
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Failed to upload image. Please try again.");
+      // Restore previous user state
+      setUser({ ...auth.currentUser });
+    }
+  };
+
   return (
     <PageTransition isLoading={isLoading} loadingMessage={loadingMessage}>
       <div className="homepage-container">
@@ -123,29 +171,61 @@ function HomePage() {
           {/* ✅ Conditionally show user info */}
           {user ? (
             <div className="user-controls">
-              <span className="welcome-text">
-                Welcome, {user.displayName || user.email} 👋
-              </span>
-              <LoadingButton
-                className="dashboard-btn"
-                onClick={handleDashboardClick}
-                isLoading={isButtonLoading('dashboard')}
-                loadingText="Opening dashboard..."
-                variant="primary"
-                size="medium"
-              >
-                Dashboard
-              </LoadingButton>
-              <LoadingButton
-                className="logout-btn"
-                onClick={handleLogoutClick}
-                isLoading={isButtonLoading('logout')}
-                loadingText="Logging out..."
-                variant="danger"
-                size="medium"
-              >
-                Logout
-              </LoadingButton>
+              <div className="user-profile" onClick={() => setShowDropdown(!showDropdown)}>
+                <div className="profile-image-container">
+                  <img 
+                    src="/profile-default.png"
+                    onError={(e) => {
+                      e.target.onerror = null; // Prevent infinite loop
+                      e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23808080'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
+                    }}
+                    alt="Profile" 
+                    className="profile-image" 
+                  />
+                  <label className="image-upload-label" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      style={{ display: 'none' }}
+                    />
+                    <span className="upload-icon">📷</span>
+                  </label>
+                </div>
+                <span className="user-name">
+                  {user.displayName || user.email}
+                </span>
+                <span className="dropdown-arrow">▼</span>
+              </div>
+              {showDropdown && (
+                <div className="profile-dropdown">
+                  <div className="dropdown-item">
+                    <LoadingButton
+                      className="dropdown-button"
+                      onClick={handleDashboardClick}
+                      isLoading={isButtonLoading('dashboard')}
+                      loadingText="Opening dashboard..."
+                      variant="text"
+                      size="medium"
+                    >
+                      Dashboard
+                    </LoadingButton>
+                  </div>
+                  <div className="dropdown-divider"></div>
+                  <div className="dropdown-item">
+                    <LoadingButton
+                      className="dropdown-button"
+                      onClick={handleLogoutClick}
+                      isLoading={isButtonLoading('logout')}
+                      loadingText="Logging out..."
+                      variant="text"
+                      size="medium"
+                    >
+                      Logout
+                    </LoadingButton>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <button className="navbar-button" onClick={handleLoginClick}>
@@ -183,49 +263,46 @@ function HomePage() {
           <div className="journey-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="journey-modal-header">
               <h3>🌍 Choose Your Journey Type</h3>
-              <button className="journey-modal-close" onClick={closeJourneyModal}>
-                ×
-              </button>
+              <button className="journey-modal-close" onClick={closeJourneyModal}>×</button>
             </div>
-            <div className="journey-modal-body">
-              <p>What type of trip are you planning?</p>
-
-              <div className="journey-options">
-                <LoadingButton
-                  className="journey-option"
-                  onClick={() => handleJourneyTypeSelect('single')}
-                  isLoading={isButtonLoading('journey-single')}
-                  loadingText="Loading single destination..."
-                  variant="ghost"
-                  size="large"
-                >
-                  <div className="journey-content">
-                    <div className="journey-icon">🎯</div>
-                    <h4>Single Destination</h4>
-                    <p>Plan a trip to one amazing destination</p>
-                    <div className="journey-example">
-                      Example: Delhi → Paris
-                    </div>
+            <p className="journey-modal-question">What type of trip are you planning?</p>
+            <div className="journey-options">
+              <div 
+                className="journey-option"
+                onClick={() => !isButtonLoading('journey-single') && handleJourneyTypeSelect('single')}
+              >
+                <div className="journey-icon">🎯</div>
+                <div className="journey-details">
+                  <h4>Single Destination</h4>
+                  <p>Plan a trip to one amazing destination</p>
+                  <div className="journey-example">
+                    Example: Delhi → Paris
                   </div>
-                </LoadingButton>
-
-                <LoadingButton
-                  className="journey-option"
-                  onClick={() => handleJourneyTypeSelect('multi')}
-                  isLoading={isButtonLoading('journey-multi')}
-                  loadingText="Loading multi-destination..."
-                  variant="ghost"
-                  size="large"
-                >
-                  <div className="journey-content">
-                    <div className="journey-icon">🗺️</div>
-                    <h4>Multi-Destination Journey</h4>
-                    <p>Explore multiple cities in one trip</p>
-                    <div className="journey-example">
-                      Example: Delhi → Paris → Rome → Barcelona
-                    </div>
+                </div>
+                {isButtonLoading('journey-single') && 
+                  <div className="journey-loading-overlay">
+                    <div className="loading-spinner"></div>
                   </div>
-                </LoadingButton>
+                }
+              </div>
+
+              <div 
+                className="journey-option"
+                onClick={() => !isButtonLoading('journey-multi') && handleJourneyTypeSelect('multi')}
+              >
+                <div className="journey-icon">🗺️</div>
+                <div className="journey-details">
+                  <h4>Multi-Destination Journey</h4>
+                  <p>Explore multiple cities in one trip</p>
+                  <div className="journey-example">
+                    Example: Delhi → Paris → Rome → Barcelona
+                  </div>
+                </div>
+                {isButtonLoading('journey-multi') && 
+                  <div className="journey-loading-overlay">
+                    <div className="loading-spinner"></div>
+                  </div>
+                }
               </div>
             </div>
           </div>

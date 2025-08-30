@@ -272,39 +272,38 @@ function ItineraryDisplay() {
 
   return (
     <div className="itinerary-page">
-      {/* Header */}
-      <header className="itinerary-header">
-        <div className="header-content">
-          <button className="back-btn" onClick={handleBackToBooking}>
-            ← Back to Booking
-          </button>
-          <h1>Your Dream Itinerary</h1>
-          <div className="header-actions">
-            <button className="save-btn" onClick={() => setShowSaveModal(true)}>
-              💾 Save Itinerary
+      <div className="main-content">
+        {/* Header */}
+        <header className="itinerary-header">
+          <div className="header-content">
+            <button className="back-btn" onClick={handleBackToBooking}>
+              ← Back to Booking
             </button>
-            <button className="logout-btn" onClick={handleLogout}>
-              🚪 Logout
-            </button>
+            <h1>Your Dream Itinerary</h1>
+            <div className="header-actions">
+              <button className="save-btn" onClick={() => setShowSaveModal(true)}>
+                💾 Save Itinerary
+              </button>
+              <button className="logout-btn" onClick={handleLogout}>
+                🚪 Logout
+              </button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Trip Summary */}
-      <section className="trip-summary">
-        <div className="summary-content">
-          <h2>🎯 {tripDetails.destination || 'Your Destination'}</h2>
-          <div className="trip-details">
-            <span>📅 {tripDetails.days || 'N/A'} Days</span>
-            <span>💰 ₹{tripDetails.budget || 'N/A'} INR</span>
-            <span>🚗 {tripDetails.transportMode || 'N/A'}</span>
-            <span>🍽️ {tripDetails.foodPreference || 'N/A'}</span>
+        {/* Trip Summary */}
+        <section className="trip-summary">
+          <div className="summary-content">
+            <h2>🎯 {tripDetails.destination || 'Your Destination'}</h2>
+            <div className="trip-details">
+              <span>📅 {tripDetails.days || 'N/A'} Days</span>
+              <span>💰 ₹{tripDetails.budget || 'N/A'} INR</span>
+              <span>🚗 {tripDetails.transportMode || 'N/A'}</span>
+              <span>🍽️ {tripDetails.foodPreference || 'N/A'}</span>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Main Content */}
-      <div className="itinerary-container">
         {/* Itinerary Display */}
         <section className="itinerary-content">
           <div className="days-container">
@@ -356,68 +355,68 @@ function ItineraryDisplay() {
             ))}
           </div>
         </section>
-
-        {/* Chat Section */}
-        <section className="chat-section">
-          <div className="chat-header">
-            <h3>💬 Modify Your Itinerary</h3>
-            <p>Ask questions or request changes to your itinerary</p>
-          </div>
-          
-          <div className="chat-messages">
-            {chatMessages.length === 0 ? (
-              <div className="chat-placeholder">
-                <p>👋 Hi! I'm here to help you modify your itinerary.</p>
-                <p>You can ask me to:</p>
-                <ul>
-                  <li>Add more activities to a specific day</li>
-                  <li>Change restaurant recommendations</li>
-                  <li>Suggest alternative attractions</li>
-                  <li>Adjust timing or budget</li>
-                </ul>
-              </div>
-            ) : (
-              chatMessages.map((message, index) => (
-                <div key={index} className={`chat-message ${message.type}`}>
-                  <div className="message-content">
-                    <p>{message.content}</p>
-                    <span className="message-time">{message.timestamp}</span>
-                  </div>
-                </div>
-              ))
-            )}
-            {isSendingMessage && (
-              <div className="chat-message ai">
-                <div className="message-content">
-                  <div className="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="chat-input">
-            <input
-              type="text"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Ask me to modify your itinerary..."
-              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              disabled={isSendingMessage}
-            />
-            <button 
-              onClick={handleSendMessage} 
-              disabled={isSendingMessage || !newMessage.trim()}
-              className="send-btn"
-            >
-              {isSendingMessage ? '⏳' : '📤'}
-            </button>
-          </div>
-        </section>
       </div>
+
+      {/* Chat Section */}
+      <section className="chat-section">
+        <div className="chat-header">
+          <h3>💬 Modify Your Itinerary</h3>
+          <p>Ask questions or request changes to your itinerary</p>
+        </div>
+        
+        <div className="chat-messages">
+          {chatMessages.length === 0 ? (
+            <div className="chat-placeholder">
+              <p>👋 Hi! I'm here to help you modify your itinerary.</p>
+              <p>You can ask me to:</p>
+              <ul>
+                <li>Add more activities to a specific day</li>
+                <li>Change restaurant recommendations</li>
+                <li>Suggest alternative attractions</li>
+                <li>Adjust timing or budget</li>
+              </ul>
+            </div>
+          ) : (
+            chatMessages.map((message, index) => (
+              <div key={index} className={`chat-message ${message.type}`}>
+                <div className="message-content">
+                  <p>{message.content}</p>
+                  <span className="message-time">{message.timestamp}</span>
+                </div>
+              </div>
+            ))
+          )}
+          {isSendingMessage && (
+            <div className="chat-message ai">
+              <div className="message-content">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="chat-input">
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Ask me to modify your itinerary..."
+            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+            disabled={isSendingMessage}
+          />
+          <button 
+            onClick={handleSendMessage} 
+            disabled={isSendingMessage || !newMessage.trim()}
+            className="send-btn"
+          >
+            {isSendingMessage ? '⏳' : '📤'}
+          </button>
+        </div>
+      </section>
 
       {/* Save Confirmation Modal */}
       {showSaveModal && (

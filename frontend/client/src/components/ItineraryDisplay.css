@@ -1,38 +1,63 @@
 /* Itinerary Display Page Styles */
 .itinerary-page {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  height: 100vh;
+  background: #ffffff;
   font-family: 'Arial', sans-serif;
+  display: flex;
+  flex-direction: row;
+  padding: 0;
+  overflow: hidden;
+}
+
+.days-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 15px;
 }
 
 .loading-screen {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-/* Chat Section */
+.chat-section {
+  background: #ffffff;
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-left: 1px solid #e5e7eb;
+  height: 100vh;
+}justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   font-size: 18px;
 }
 
 /* Header Styles */
+.main-content {
+  width: 75%;
+  background: #ffffff;
+  height: 100vh;
+  overflow-y: auto;
+}
+
 .itinerary-header {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(15px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 20px 0;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 15px;
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
 .header-content {
-  max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .back-btn {
@@ -97,12 +122,9 @@
 
 /* Trip Summary */
 .trip-summary {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(15px);
-  margin: 20px;
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .summary-content h2 {
@@ -130,13 +152,11 @@
 }
 
 /* Main Container */
-.itinerary-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 30px;
+.main-content {
+  width: 75%;
+  padding-right: 20px;
+  overflow-y: auto;
+  max-height: 100vh;
 }
 
 /* Itinerary Content */
@@ -216,10 +236,10 @@
 }
 
 .activity-section {
-  background: rgba(102, 126, 234, 0.05);
-  border-radius: 10px;
+  background: #f9fafb;
   padding: 15px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #e5e7eb;
+  margin-bottom: 10px;
 }
 
 .activity-time {
@@ -266,16 +286,23 @@
   border-radius: 20px;
   padding: 25px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  height: fit-content;
-  position: sticky;
-  top: 120px;
+  width: 25%;
+  /* position: fixed; */
+  right: 20px;
+  top: 0px;
+  bottom: 0px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: 400px;
+  z-index: 1000;
 }
 
 .chat-header {
-  text-align: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+  text-align: left;
+  padding: 15px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
 }
 
 .chat-header h3 {
@@ -292,10 +319,26 @@
 }
 
 .chat-messages {
-  max-height: 400px;
+  flex: 1;
   overflow-y: auto;
   margin-bottom: 20px;
   padding: 10px 0;
+  height: calc(100% - 180px); /* Account for header and input area */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(102, 126, 234, 0.5) transparent;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: rgba(102, 126, 234, 0.5);
+  border-radius: 3px;
 }
 
 .chat-placeholder {
@@ -337,14 +380,14 @@
 }
 
 .chat-message.user .message-content {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: #f3f4f6;
+  color: #111827;
 }
 
 .chat-message.ai .message-content {
-  background: rgba(102, 126, 234, 0.1);
-  color: #333;
-  border: 1px solid rgba(102, 126, 234, 0.2);
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
 }
 
 .message-content p {
@@ -383,6 +426,9 @@
   display: flex;
   gap: 10px;
   align-items: center;
+  padding: 15px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
 }
 
 .chat-input input {
@@ -604,12 +650,28 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-  .itinerary-container {
-    grid-template-columns: 1fr;
-    gap: 20px;
+@media (max-width: 768px)
+{
+  .itinerary-page {
+    flex-direction: column;
+    padding: 10px;
   }
-  
+
+  .main-content {
+    width: 100%;
+    padding-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .chat-section {
+    width: 100%;
+    position: relative;
+    height: 500px;
+    right: 0;
+    top: 0;
+  }
+
+
   .header-content {
     flex-direction: column;
     gap: 15px;
@@ -633,9 +695,6 @@
     font-size: 18px;
   }
   
-  .chat-section {
-    position: static;
-  }
 }
 
 /* Comparison Modal Styles */
@@ -819,5 +878,52 @@
   .comparison-select-btn {
     padding: 10px 20px;
     font-size: 14px;
+  }
+}
+
+/* Main Responsive Design */
+@media (max-width: 1024px) {
+  .itinerary-page {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .main-content {
+    width: 100%;
+    padding-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .chat-section {
+    width: 100%;
+    max-width: none;
+    position: relative;
+    height: 400px;
+    right: 0;
+    top: 0;
+    margin-top: 20px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .header-actions {
+    justify-content: center;
+  }
+  
+  .trip-details {
+    gap: 15px;
+  }
+  
+  .trip-details span {
+    font-size: 14px;
+    padding: 8px 15px;
+  }
+  
+  .day-header h3 {
+    font-size: 18px;
   }
 }

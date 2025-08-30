@@ -1,0 +1,112 @@
+.travel-preferences {
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin: 16px 0;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.preferences-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.preferences-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.preferences-icon {
+  color: #ff385c;
+  font-size: 28px;
+}
+
+.preferences-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.preference-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f0f2ff;
+  border-radius: 100px;
+  font-size: 14px;
+  color: #444;
+  border: 1px solid #e6e8f0;
+}
+
+.tag-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+/* Calendar Tag */
+.calendar-tag {
+  background: #f0f7ff;
+  border-color: #e1eeff;
+}
+
+/* Budget Tag */
+.budget-tag {
+  background: #fff4e6;
+  border-color: #ffe8cc;
+}
+
+/* Transport Tag */
+.transport-tag {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}
+
+/* Food Tag */
+.food-tag {
+  background: #f5f3ff;
+  border-color: #ede9fe;
+}
+
+@media (max-width: 768px) {
+  .travel-preferences {
+    padding: 16px;
+  }
+
+  .preferences-header h2 {
+    font-size: 20px;
+  }
+
+  .preferences-tags {
+    gap: 8px;
+  }
+
+  .preference-tag {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .preferences-header {
+    margin-bottom: 16px;
+  }
+
+  .preferences-tags {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .preference-tag {
+    width: 100%;
+    justify-content: center;
+  }
+}

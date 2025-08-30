@@ -10,3 +10,4 @@ def scrape_restaurants(destination: str, veg_only: bool=False):
         {"name": "Tandoori Treats", "speciality": "North Indian", "veg_friendly": True},
         {"name": "Sea Breeze", "speciality": "Seafood", "veg_friendly": False}
     ]
+    
