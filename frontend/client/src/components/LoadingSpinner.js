@@ -13,7 +13,7 @@ function LoadingSpinner({ message = "Loading...", size = "medium", overlay = fal
         <div className="loading-spinner-icon">❄️</div>
       </div>
       <div className="loading-spinner-text">{message}</div>
-    </div>
+    </div>  
   );
 
   if (overlay) {

@@ -5,6 +5,123 @@
   font-size: 22px;
   font-weight: bold;
 }
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 15px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  position: relative;
+}
+
+.user-profile:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.profile-image-container {
+  position: relative;
+  width: 32px;
+  height: 32px;
+}
+
+.profile-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.image-upload-label {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background-color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+
+.image-upload-label:hover {
+  transform: scale(1.1);
+}
+
+.upload-icon {
+  font-size: 10px;
+  line-height: 1;
+}
+
+.user-name {
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dropdown-arrow {
+  font-size: 10px;
+  color: #666;
+  margin-left: 5px;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  min-width: 200px;
+  z-index: 1000;
+  margin-top: 8px;
+  padding: 8px 0;
+  animation: dropdownFade 0.2s ease-out;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-dropdown .dropdown-item {
+  padding: 4px 0;
+}
+
+.profile-dropdown .dropdown-button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 20px;
+  color: #333;
+  font-size: 14px;
+  border: none;
+  background: none;
+  transition: none;
+}
+
+.profile-dropdown .dropdown-button:hover {
+  background: none;
+  color: #666;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 4px 0;
+}
+
 /* Common button base style */
 .navbar-button,
 .logout-btn,
@@ -256,6 +373,32 @@
     font-size: 1.1rem;
     margin-bottom: 30px;
   }
+
+  .journey-modal-content {
+    width: 95%;
+    margin: 16px;
+    max-height: 85vh;
+  }
+
+  .journey-options {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 0;
+  }
+
+  .journey-option {
+    min-height: 180px;
+    padding: 20px;
+  }
+
+  .journey-modal-body {
+    padding: 16px;
+  }
+
+  .journey-modal-question {
+    margin: 0 0 24px 0;
+    padding: 0 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -285,155 +428,232 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 2000;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .journey-modal-content {
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(15px);
-  border-radius: 20px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  max-width: 700px;
-  width: 90%;
-  max-height: 80vh;
-  overflow: hidden;
-  animation: slideIn 0.3s ease;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  max-width: 640px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.3s ease;
+  margin: 16px;
+  box-sizing: border-box;
+  border: 1px solid #e0e0e0;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .journey-modal-header {
-  padding: 25px 30px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 20px 20px 0 0;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-radius: 8px 8px 0 0;
 }
 
 .journey-modal-header h3 {
   margin: 0;
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
 }
 
 .journey-modal-close {
   background: none;
   border: none;
-  font-size: 28px;
+  font-size: 18px;
   cursor: pointer;
-  color: inherit;
-  padding: 0;
-  width: 35px;
-  height: 35px;
+  color: #666;
+  padding: 6px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  margin: -6px;
 }
 
 .journey-modal-close:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #f0f0f0;
+  color: #333;
 }
 
 .journey-modal-body {
-  padding: 30px;
+  padding: 16px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 0 0 8px 8px;
 }
+
+.journey-modal-question {
+  text-align: center;
+  font-size: 15px;
+  color: #666;
+  margin: 0 0 32px 0;
+  font-weight: normal;
+  padding: 0 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.journey-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #eee;
+  border-top-color: #666;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 
 .journey-modal-body p {
   text-align: center;
   font-size: 18px;
-  color: #555;
-  margin: 0 0 30px 0;
+  color: #2c3e50;
+  margin: 0 0 35px 0;
   font-weight: 500;
+  line-height: 1.6;
 }
 
 .journey-options {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 25px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 0 16px 16px;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .journey-option {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border: 2px solid rgba(102, 126, 234, 0.2) !important;
-  border-radius: 15px !important;
-  padding: 25px 20px !important;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 24px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   position: relative;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-  height: auto;
-  min-height: 200px;
+  box-sizing: border-box;
+  min-height: 180px;
+  gap: 8px;
+}
+
+.journey-option:hover {
+  border-color: #999;
+  background-color: #fafafa;
+}
+
+.journey-option:active {
+  transform: translateY(1px);
 }
 
 .journey-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   height: 100%;
-}
-
-.journey-option::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
   width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
-  transition: left 0.5s ease;
-}
-
-.journey-option:hover::before {
-  left: 100%;
-}
-
-.journey-option:hover {
-  transform: translateY(-5px);
-  border-color: #667eea;
-  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.2);
 }
 
 .journey-icon {
-  font-size: 48px;
-  margin-bottom: 15px;
+  font-size: 32px;
+  margin-bottom: 16px;
   display: block;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.journey-details {
+  flex-grow: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 8px 0;
 }
 
 .journey-option h4 {
   color: #333;
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  width: 100%;
 }
 
 .journey-option p {
   color: #666;
   font-size: 14px;
-  margin: 0 0 15px 0;
-  line-height: 1.4;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+  width: 100%;
 }
 
 .journey-example {
-  background: rgba(102, 126, 234, 0.1);
-  color: #667eea;
+  background: #f5f5f5;
+  color: #666;
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 4px;
   font-size: 12px;
-  font-weight: 600;
-  border: 1px solid rgba(102, 126, 234, 0.2);
+  font-weight: normal;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: auto;
 }
 
 @keyframes fadeIn {
