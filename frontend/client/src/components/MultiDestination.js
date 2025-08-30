@@ -48,8 +48,7 @@ function MultiDestination() {
   // Generation state
   const [isGeneratingItinerary, setIsGeneratingItinerary] = useState(false);
 
-  // API base URL
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000';
+
 
   // Save form data to sessionStorage whenever it changes
   useEffect(() => {
@@ -189,7 +188,7 @@ function MultiDestination() {
 
     setIsLoadingSuggestions(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/places/autocomplete?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`/places/autocomplete?query=${encodeURIComponent(query)}`);
       const data = await response.json();
       
       if (data.predictions) {
@@ -314,8 +313,8 @@ function MultiDestination() {
       // Choose between regular and enhanced Amadeus-powered itinerary
       const useAmadeusData = true; // Set to true to use real-time travel data
       const endpoint = useAmadeusData
-        ? `${API_BASE_URL}/api/generate-itinerary-with-amadeus`
-        : `${API_BASE_URL}/routers/generate-multi-itinerary`;
+        ? `/api/generate-itinerary-with-amadeus`
+        : `/routers/generate-multi-itinerary`;
 
       console.log(`🚀 Using ${useAmadeusData ? 'Amadeus-enhanced' : 'standard'} multi-destination itinerary generation`);
 

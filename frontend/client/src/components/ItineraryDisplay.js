@@ -48,8 +48,7 @@ function ItineraryDisplay() {
   const [modalMessage, setModalMessage] = useState("");
   const [modalType, setModalType] = useState("success");
 
-  // API base URL from environment variables
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000';
+
 
   // Save itinerary data to sessionStorage whenever it changes
   useEffect(() => {
@@ -197,7 +196,7 @@ function ItineraryDisplay() {
     setNewMessage("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/chat/followup`, {
+      const response = await fetch(`/chat/followup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -206,7 +205,12 @@ function ItineraryDisplay() {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      console.log("Chat response data:", data); // Debug log
 
       if (data.type === 'itinerary_update' && data.modified_itinerary) {
         // Store current itinerary for comparison

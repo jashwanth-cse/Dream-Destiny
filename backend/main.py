@@ -1,21 +1,21 @@
-# backend/app.py
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 import os
 from dotenv import load_dotenv
 from services.amadeus_service import AmadeusService
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
-# Load environment variables
 load_dotenv()
 
 app = FastAPI()
-
+api = APIRouter(prefix="/api")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # React dev server
+    allow_origins=["*"],  # Allow all origins for production with ngrok
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -92,7 +92,7 @@ def generate_itinerary(trip: TripRequest):
         print(f"Generated prompt: {prompt[:200]}...")  # Debug logging
 
         response = requests.post(
-            GEMINI_API_URL,
+            f"{GEMINI_API_URL}?key={GEMINI_API_KEY}",
             headers={"Content-Type": "application/json"},
             json={"contents": [{"parts": [{"text": prompt}]}]},
         )
@@ -207,7 +207,7 @@ def chat_followup(request: dict):
         """
 
         response = requests.post(
-            GEMINI_API_URL,
+            f"{GEMINI_API_URL}?key={GEMINI_API_KEY}",
             headers={"Content-Type": "application/json"},
             json={"contents": [{"parts": [{"text": modification_prompt}]}]},
         )
@@ -304,7 +304,7 @@ def generate_multi_itinerary(trip: MultiTripRequest):
         print(f"Generated prompt: {prompt[:200]}...")  # Debug logging
 
         response = requests.post(
-            GEMINI_API_URL,
+            f"{GEMINI_API_URL}?key={GEMINI_API_KEY}",
             headers={"Content-Type": "application/json"},
             json={"contents": [{"parts": [{"text": prompt}]}]},
         )
@@ -334,7 +334,7 @@ def generate_multi_itinerary(trip: MultiTripRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 # ✅ New Amadeus Travel Data Endpoint
-@app.post("/api/travel-data")
+@api.post("/travel-data")
 async def get_travel_data(trip: TripRequest):
     """
     Get comprehensive travel data using Amadeus APIs
@@ -529,3 +529,12 @@ async def generate_itinerary_with_amadeus(trip: TripRequest):
     except Exception as e:
         print(f"❌ Error generating enhanced itinerary: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to generate enhanced itinerary: {str(e)}")
+frontend_build_path = os.path.join(os.path.dirname(__file__), "../frontend/client/build")
+
+app.mount("/static", StaticFiles(directory=os.path.join(frontend_build_path, "static")), name="static")
+
+app.include_router(api)
+@app.get("/{full_path:path}")
+async def serve_react(full_path: str):
+    index_file = os.path.join(frontend_build_path, "index.html")
+    return FileResponse(index_file)

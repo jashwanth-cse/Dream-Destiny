@@ -44,8 +44,7 @@ function TravelBooking() {
 
   const navigate = useNavigate();
 
-  // API base URL from environment variables
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000';
+
 
   // Helper function to show modal
   const showMessage = (message, type = "error") => {
@@ -99,7 +98,7 @@ function TravelBooking() {
 
     setIsLoadingSuggestions(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/places/autocomplete?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`/places/autocomplete?query=${encodeURIComponent(query)}`);
       const data = await response.json();
 
       if (data.predictions) {
@@ -280,8 +279,8 @@ const handleSubmit = async (e) => {
     // Choose between regular and enhanced Amadeus-powered itinerary
     const useAmadeusData = true; // Set to true to use real-time travel data
     const endpoint = useAmadeusData
-      ? `${API_BASE_URL}/api/generate-itinerary-with-amadeus`
-      : `${API_BASE_URL}/routers/generate-itinerary`;
+      ? `/api/generate-itinerary-with-amadeus`
+      : `/routers/generate-itinerary`;
 
     console.log(`🚀 Using ${useAmadeusData ? 'Amadeus-enhanced' : 'standard'} itinerary generation`);
 
