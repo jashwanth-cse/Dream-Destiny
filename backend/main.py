@@ -25,11 +25,11 @@ app.add_middleware(
 amadeus_service = AmadeusService()
 
 # ✅ Store your API keys securely
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyBh9q8O9CUlQ2ey4RMzLzI8t7kFQxV9JMI")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
 # Google Places API configuration
-GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "AIzaSyCgc7VyrFErOSwsPn08oc-SAz_Lf0HDORk")  # Use same key or different one
+GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "")  # Use same key or different one
 GOOGLE_PLACES_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=paris&key=GOOGLE_PLACES_API_KEY"
 
 # Schema for incoming request
